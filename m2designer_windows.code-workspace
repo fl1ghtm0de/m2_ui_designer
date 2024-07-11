@@ -18,7 +18,7 @@
 			"program": "${workspaceFolder:m2designer}/main.py",
 			"console": "integratedTerminal",
 			"cwd": "${workspaceFolder:m2designer}",
-			"pythonPath": "${workspaceFolder:m2designer}/.venv/bin/python3"
+			"pythonPath": "${workspaceFolder:m2designer}/.venv/Scripts/python.exe"
 		},
 
 		],
