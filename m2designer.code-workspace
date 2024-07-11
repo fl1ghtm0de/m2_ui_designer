@@ -1,0 +1,33 @@
+
+{
+	"folders": [
+		{
+			"name": "m2designer",
+			"path": "m2designer"
+		},
+	],
+
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+
+		{
+			"name": "Launch designer",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder:m2designer}/main.py",
+			"console": "integratedTerminal",
+			"cwd": "${workspaceFolder:m2designer}",
+			"pythonPath": "${workspaceFolder:m2designer}/.venv/bin/python3"
+		},
+
+		],
+
+		// "compounds": [
+		// 	{
+		// 		"name": "Launch Server and Client",
+		// 		"configurations": ["Launch designer"]
+		// 	}
+		// ]
+	}
+}
