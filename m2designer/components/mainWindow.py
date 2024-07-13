@@ -1,5 +1,5 @@
 from components.draggableLabel import DraggableLabel
-from tools.tilteImage import create_tiled_image, add_borders, make_final_image
+from tools.tileImage import create_tiled_image, add_borders, make_final_image
 
 class MainWindowLabel(DraggableLabel):
     def __init__(self, *args, **kwargs):
