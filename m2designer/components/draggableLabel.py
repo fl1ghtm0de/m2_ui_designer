@@ -11,12 +11,18 @@ class DraggableLabel(ctk.CTkLabel):
         self.children_widgets = []
 
         self.dragged_signal = Signal(object, int, int)
-        self.clicked_signal = Signal(int, int)
-        self.dropped_signal = Signal(int, int)
+        # self.clicked_signal = Signal(object)
+        # self.dropped_signal = Signal(object)
 
     def on_click(self, event):
+        # Store the initial position when dragging starts
+        place_info = self.place_info()
+        self._initial_x = int(place_info["x"])
+        self._initial_y = int(place_info["y"])
         self._drag_start_x = event.x
         self._drag_start_y = event.y
+
+        # self.clicked_signal.emit(self)
 
     def on_drag(self, event):
         # Calculate the new position of the label
@@ -28,40 +34,9 @@ class DraggableLabel(ctk.CTkLabel):
         new_y = y + event.y - self._drag_start_y
 
         self.dragged_signal.emit(self, new_x, new_y)
-        # Move the label to the new position
-        # self.place(x=new_x, y=new_y)
-        # Update positions of child widgets
-        # for child in self.children_widgets:
-        #     child_x = int(child.place_info()["x"])
-        #     child_y = int(child.place_info()["y"])
-        #     child.place(x=new_x + child_x - x, y=new_y + child_y - y)
 
     def on_drop(self, event):
-        # for widget in self.master.winfo_children():
-        #     print(widget._text, self.is_within_bounds(widget, event))
-        #     if isinstance(widget, DraggableLabel) and widget is not self:
-        #         # Check if the widget is within the bounds of this label
-        #         if self.is_within_bounds(widget, event):
-        #             print("in inside")
-        #             # Move the widget inside this label
-        #             widget.add_child(self, event)
-        # print("------------------------------")
-
-        # root = self.resolve_root(self)
-        # target = self.resolve_drop_dest(root)
-
-        # print(target, self.master)
-
-        # if target is self.master:
-        #     print("abort")
-        #     return
-
-        # print("target:", target)
-        # print("-----------------")
-        # if isinstance(target, DraggableLabel):
-        #     self_copy = self.copy_widget(self, target)
-        #     self_copy.place(x=0, y=0)
-
+        # self.dropped_signal.emit(self)
         pass
 
     def resolve_drop_dest(self, root=None):

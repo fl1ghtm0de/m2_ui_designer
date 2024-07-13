@@ -1,3 +1,3 @@
 from view import View
 
-View()
+v = View()

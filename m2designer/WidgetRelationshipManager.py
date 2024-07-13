@@ -17,25 +17,44 @@ class WidgetRelationshipManager(object):
         else:
             raise Exception("Widget with this name already exists!")
 
-    def add_child_widget(self, *parent_widgets, widget):
-        parent_widget = None
-        for parent in parent_widgets:
-            if parent_widget is None:
-                parent_widget = self.widgets.get(parent, None)
-            else:
-                parent_widget = parent_widget.get(parent, None)
+    def add_child_widget(self, parent_widget, *widgets, _widgets=None):
+        if _widgets is None:
+            _widgets = self.widgets
 
-        parent_widget[widget] = {}
+        res = _widgets.get(parent_widget, None)
+
+        if res is None:
+            for key, value in _widgets.items():
+                if len(value.keys()) > 0:
+                    return self.add_child_widget(parent_widget, *widgets, _widgets=value)
+        else:
+            for wdg in widgets:
+                res[wdg] = {}
 
     def get_widget(self, widget_name):
         return self.widgets.get(widget_name, None)
 
-    def get_child_widgets(self, *parent_widgets):
-        parent_widget = None
-        for parent in parent_widgets:
-            if parent_widget is None:
-                parent_widget = self.widgets.get(parent, None)
-            else:
-                parent_widget = parent_widget.get(parent, None)
+    def get_child_widgets(self, parent_widget, widgets=None) -> dict:
+        if widgets is None:
+            widgets = self.widgets
 
-        return parent_widget
+        res = widgets.get(parent_widget, None)
+        if res is None:
+            for key, value in widgets.items():
+                if len(value.keys()) > 0:
+                    return self.get_child_widgets(parent_widget, value)
+
+        return res
+
+    def get_parent_widgets(self, widget, widget_dict=None):
+        if widget_dict is None:
+            widget_dict = self.widgets
+
+        for parent, children in widget_dict.items():
+            if widget in children.keys():
+                return parent
+            else:
+                if len(children.keys()) > 0:
+                    return self.get_parent_widgets(widget, children)
+
+        return None
