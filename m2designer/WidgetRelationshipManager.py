@@ -27,6 +27,9 @@ class WidgetRelationshipManager(object):
 
         parent_widget[widget] = {}
 
+    def get_widget(self, widget_name):
+        return self.widgets.get(widget_name, None)
+
     def get_child_widgets(self, *parent_widgets):
         parent_widget = None
         for parent in parent_widgets:
@@ -36,6 +39,3 @@ class WidgetRelationshipManager(object):
                 parent_widget = parent_widget.get(parent, None)
 
         return parent_widget
-
-    def get_widget(self, widget_name):
-        return self.widgets.get(widget_name, None)

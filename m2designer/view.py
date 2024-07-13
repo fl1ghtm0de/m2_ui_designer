@@ -20,7 +20,19 @@ class View:
         self.mainLabel = MainWindowLabel(master=self.app, text="main1", parent_width_callback=self.app.winfo_width, parent_height_callback=self.app.winfo_height, width=400, height=400)
         self.mainLabel.place(x=0, y=0)
         self.mainLabel.dragged_signal.connect(self.move_widget)
-        self.wrm.add_widget(self.mainLabel, self.mainLabel)
+        self.wrm.add_widget(self.mainLabel)
+
+        self.mainLabel2 = MainWindowLabel(master=self.app, text="main2", parent_width_callback=self.app.winfo_width, parent_height_callback=self.app.winfo_height, width=400, height=400)
+        self.mainLabel2.place(x=405, y=0)
+        self.mainLabel2.dragged_signal.connect(self.move_widget)
+
+        self.mainLabel3 = MainWindowLabel(master=self.app, text="main3", parent_width_callback=self.app.winfo_width, parent_height_callback=self.app.winfo_height, width=400, height=400)
+        self.mainLabel3.place(x=810, y=0)
+        self.mainLabel3.dragged_signal.connect(self.move_widget)
+
+        self.wrm.add_child_widget(self.mainLabel, widget=self.mainLabel2)
+        self.wrm.add_child_widget(self.mainLabel, self.mainLabel2, widget=self.mainLabel3)
+
         # self.mainLabel2 = MainWindowLabel(master=self.mainLabel, text="main2", parent_width_callback=self.app.winfo_width, parent_height_callback=self.app.winfo_height, width=300, height=300)
         # self.mainLabel2.place(x=10, y=10)
         # mainLabel2 = MainWindowLabel(master=mainLabel, text="main2", parent_width_callback=app.winfo_width, parent_height_callback=app.winfo_height, width=100, height=200)
@@ -38,7 +50,13 @@ class View:
         self.app.mainloop()
 
     def move_widget(self, widget, x, y):
-        widget.place(x=x, y=y)
+        # FIX MOVING WIDGETS !!! ----------------------------------------------------------
+        # ----------------------------------------------------------
+        # ----------------------------------------------------------
+        # ----------------------------------------------------------
+        children = self.wrm.get_child_widgets(widget)
+        for key, value in children.items():
+            key.place(x=x, y=y)
 
     def create_mainwindow_label(self):
         pass
