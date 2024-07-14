@@ -1,5 +1,5 @@
 from components.draggableLabel import DraggableLabel
-from PIL import Image
+from PIL import Image, ImageTk
 from customtkinter import CTkImage
 
 class Button(DraggableLabel):
@@ -14,10 +14,10 @@ class Button(DraggableLabel):
         "xsmall" : (37, 19)
     }
 
-    def __init__(self, button_type, *args, **kwargs):
+    def __init__(self, canvas, button_type, *args, **kwargs):
         button_type = button_type.lower()
         width = Button.sizeMapping.get(button_type, (0, 0))[0]
         height = Button.sizeMapping.get(button_type, (0, 0))[1]
         img_path = f"C:/Users/vital/Projects/m2_ui_designer/m2designer/images/button/{button_type}_button.png"
-        img = CTkImage(Image.open(img_path), size=(width, height))
-        super().__init__(image=img, width=width, height=height, *args, **kwargs)
+        self.til_img = ImageTk.PhotoImage(Image.open(img_path), size=(width, height))
+        super().__init__(canvas=canvas, image=self.til_img, width=width, height=height, *args, **kwargs)

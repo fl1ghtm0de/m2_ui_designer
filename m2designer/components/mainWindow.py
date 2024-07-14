@@ -1,8 +1,8 @@
 from components.draggableLabel import DraggableLabel
 from tools.tileImage import create_tiled_image, add_borders, make_final_image
-
+from tkinter import Canvas
 class MainWindowLabel(DraggableLabel):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)
         til_img = create_tiled_image(r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board\board_base.png", width, height)
@@ -22,5 +22,5 @@ class MainWindowLabel(DraggableLabel):
                                 },
                             )
 
-        til_img = make_final_image(til_img)
-        super().__init__(image=til_img, width=width, height=height, *args, **kwargs)
+        self.til_img = make_final_image(til_img)
+        super().__init__(canvas=canvas, width=width, height=height, image=self.til_img, *args, **kwargs)

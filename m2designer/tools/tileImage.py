@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageTk
 from customtkinter import CTkImage
 
 def create_tiled_image(image_path, width, height):
@@ -30,9 +30,6 @@ def add_borders(tiled_image, border_images):
     bottom_right_corner = Image.open(border_images["bottom_right_corner"]).convert('RGBA')
     top_right_corner = Image.open(border_images["top_right_corner"]).convert('RGBA')
 
-    # close_button = Image.open(border_images["close_button"]).convert('RGBA')
-    # minimize_button = Image.open(border_images["minimize_button"]).convert('RGBA')
-
     top_width, top_height = top_border.size
     left_width, left_height = left_border.size
     bottom_width, bottom_height = bottom_border.size
@@ -51,10 +48,6 @@ def add_borders(tiled_image, border_images):
     for i in range(top_right_corner.height, height - bottom_right_corner.height, right_height):
         result_image.paste(right_border, (width - right_width, i), right_border)
 
-    # Add close and minimize buttons to the top right corner with offsets
-    # top_right_corner.paste(close_button, (top_right_corner.width - close_button.width - button_offset, button_offset), close_button)
-    # top_right_corner.paste(minimize_button, (top_right_corner.width - close_button.width - minimize_button.width - 2 * button_offset, button_offset), minimize_button)
-
     # Corners
     result_image.paste(top_left_corner, (0, 0), top_left_corner)
     result_image.paste(bottom_left_corner, (0, height - bottom_left_corner.height), bottom_left_corner)
@@ -63,5 +56,5 @@ def add_borders(tiled_image, border_images):
 
     return result_image
 
-def make_final_image(tilted_image):
-    return CTkImage(light_image=tilted_image, size=(tilted_image.width, tilted_image.height))
+def make_final_image(image):
+    return ImageTk.PhotoImage(image)
