@@ -22,6 +22,7 @@ class DraggableLabel:
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
         self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
+        self.canvas.tag_bind(self.image_id, "<Control-Button-1>", self.show_context_menu)
 
         self.dragged_signal = Signal(object, int, int)
         self.resized_signal = Signal(object, int, int)
@@ -169,6 +170,7 @@ class DraggableLabel:
         self.delete_signal.emit(self)
 
     def show_context_menu(self, event):
+        print("hit")
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root)
         finally:

@@ -1,24 +1,26 @@
 from components.draggableLabel import DraggableLabel
 from tools.tileImage import create_tiled_image, add_borders, make_final_image
 from tkinter import Canvas
+from ConfigLoader import Config
 class MainWindowLabel(DraggableLabel):
     def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)
-        til_img = create_tiled_image(r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board\board_base.png", width, height)
+        cfg_loader = Config()
+        til_img = create_tiled_image(cfg_loader.board_base, width, height)
         til_img = add_borders(
                                 til_img,
                                 border_images={
-                                    "top" : r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_line_top.png",
-                                    "left": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_line_left.png",
-                                    "bottom": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_line_bottom.png",
-                                    "right": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_line_right.png",
-                                    "top_left_corner": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_corner_lefttop.png",
-                                    "bottom_left_corner": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_corner_leftbottom.png",
-                                    "bottom_right_corner": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_corner_rightbottom.png",
-                                    "top_right_corner": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\board_2\board_corner_righttop.png",
-                                    "close_button": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\button\close_button.png",
-                                    "minimize_button": r"C:\Users\vital\Projects\m2_ui_designer\m2designer\images\button\minimize_button.png"
+                                    "top" : cfg_loader.top,
+                                    "left": cfg_loader.left,
+                                    "bottom": cfg_loader.bottom,
+                                    "right": cfg_loader.right,
+                                    "top_left_corner": cfg_loader.top_left_corner,
+                                    "bottom_left_corner": cfg_loader.bottom_left_corner,
+                                    "bottom_right_corner": cfg_loader.bottom_right_corner,
+                                    "top_right_corner": cfg_loader.top_right_corner,
+                                    "close_button": cfg_loader.close_button,
+                                    "minimize_button": cfg_loader.minimize_button
                                 },
                             )
 
