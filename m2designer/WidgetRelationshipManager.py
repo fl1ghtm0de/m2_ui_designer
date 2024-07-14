@@ -81,7 +81,7 @@ class WidgetRelationshipManager(object):
         return None
 
 
-    def create_window(self, x=0, y=0, width=100, height=100, text="", parent=None) -> MainWindowLabel:
+    def create_window(self, x=30, y=30, width=100, height=100, text="", parent=None) -> MainWindowLabel:
         if hasattr(self, "canvas"):
             wdg = MainWindowLabel(text=text, parent=parent, canvas=self.canvas, x=x, y=y, width=width, height=height)
             wdg.dragged_signal.connect(self.move_widget)
@@ -95,7 +95,7 @@ class WidgetRelationshipManager(object):
         else:
             raise Exception("Canvas of wrm not set")
 
-    def create_button(self, x=0, y=0, text="", parent=None) -> Button:
+    def create_button(self, x=30, y=30, text="", parent=None) -> Button:
         if hasattr(self, "canvas"):
             wdg = Button(parent=parent, canvas=self.canvas, x=x, y=y, text=text, button_type="large")
             wdg.dragged_signal.connect(self.move_widget)
