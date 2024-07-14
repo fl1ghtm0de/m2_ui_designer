@@ -86,6 +86,7 @@ class WidgetRelationshipManager(object):
             wdg = MainWindowLabel(text=text, parent=parent, canvas=self.canvas, x=x, y=y, width=width, height=height)
             wdg.dragged_signal.connect(self.move_widget)
             wdg.resized_signal.connect(self.recalculate_tiled_image)
+            wdg.delete_signal.connect(self.delete_widget)
             if parent is None:
                 self.add_widget(wdg)
             else:
@@ -99,6 +100,7 @@ class WidgetRelationshipManager(object):
             wdg = Button(parent=parent, canvas=self.canvas, x=x, y=y, text=text, button_type="large")
             wdg.dragged_signal.connect(self.move_widget)
             wdg.resized_signal.connect(self.recalculate_tiled_image)
+            wdg.delete_signal.connect(self.delete_widget)
             if parent is None:
                 self.add_widget(wdg)
             else:
@@ -106,6 +108,15 @@ class WidgetRelationshipManager(object):
             return wdg
         else:
             raise Exception("Canvas of wrm not set")
+
+    def delete_widget(self, obj):
+        children = flattenDict(self.get_child_widgets(obj))
+        for child in children + [obj]:
+            self.canvas.delete(child.image_id)
+            if child.resizable:
+                for handle_id in child.handles.values():
+                    self.canvas.delete(handle_id)
+
 
     def recalculate_tiled_image(self, obj, width, height):
         if isinstance(obj, MainWindowLabel):

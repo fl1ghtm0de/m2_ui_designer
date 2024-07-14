@@ -1,6 +1,6 @@
-import customtkinter as ctk
-from tkinter import Canvas, PhotoImage
+from tkinter import Menu
 from Signal import Signal
+from customtkinter import CTkOptionMenu
 class DraggableLabel:
     def __init__(self, canvas, *args, **kwargs):
         self.x = kwargs.pop("x", 0)
@@ -21,10 +21,13 @@ class DraggableLabel:
         self.canvas.tag_bind(self.image_id, "<Button-1>", self.on_click)
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
+        self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
 
         self.dragged_signal = Signal(object, int, int)
         self.resized_signal = Signal(object, int, int)
+        self.delete_signal = Signal(object)
 
+        self.create_context_menu()
         if self.resizable:
             self._create_resize_handles()
 
@@ -155,5 +158,18 @@ class DraggableLabel:
         height = bbox[3] - bbox[1]
         return width, height
 
-    def __str__(self):
-        return self.text
+    def create_context_menu(self):
+        self.context_menu = Menu(self.canvas, tearoff=0)
+        self.context_menu.add_command(label="Option 1", command=lambda: print("option1", self))
+        self.context_menu.add_command(label="Option 2", command=lambda: print("option2", self))
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Delete", command=self.destroy)
+
+    def destroy(self):
+        self.delete_signal.emit(self)
+
+    def show_context_menu(self, event):
+        try:
+            self.context_menu.tk_popup(event.x_root, event.y_root)
+        finally:
+            self.context_menu.grab_release()
