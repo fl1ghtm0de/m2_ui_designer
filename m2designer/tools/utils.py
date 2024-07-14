@@ -4,7 +4,6 @@ def flattenDict(_dict, res=None):
 
     for key, value in _dict.items():
         res.append(key)
-        if isinstance(value, dict) and len(value.keys()) > 0:
-            return flattenDict(value, res)
-
+        if isinstance(value, dict):
+            flattenDict(value, res)
     return res
