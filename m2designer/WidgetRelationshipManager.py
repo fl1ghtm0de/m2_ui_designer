@@ -1,8 +1,10 @@
 from tools.utils import flattenDict
 from components.mainWindow import MainWindowLabel
 from components.buttonLabel import Button
+from components.draggableLabel import DraggableLabel
 from tools.tileImage import create_tiled_image, add_borders, make_final_image
 from ConfigLoader import Config
+from Signal import Signal
 class WidgetRelationshipManager(object):
     """singleton class to keep track of all placed widgets and their relationships
     """
@@ -15,23 +17,48 @@ class WidgetRelationshipManager(object):
         if not hasattr(self, 'initialized'):
             self.initialized = True
             self.widgets = {}
-            self.til_img_list = []
+            self.til_img_map = {}
+            self.clicked_signal = Signal(int, int, int, int, str, str)
+            self.curr_widget = None
 
     def set_canvas(self, canvas):
         self.canvas = canvas
 
-    def move_widget(self, widget, x, y):
+    def get_curr_widget(self) -> DraggableLabel:
+        return self.curr_widget
+
+    def __emit_clicked(self, widget):
+        self.curr_widget = widget
+        self.clicked_signal.emit(int(widget.x), int(widget.y), int(widget.width), int(widget.height), str(widget), str(widget.parent))
+
+    def __is_movable(self, widget):
+        if widget.parent is not None:
+            parent_x, parent_y = self.canvas.coords(widget.parent.image_id)
+            x, y = self.canvas.coords(widget.image_id)
+            if (x - parent_x <= 0) or (x + widget.width >= parent_x + widget.parent.width) or (y - parent_y <= 0) or (y + widget.height >= parent_y + widget.parent.height):
+                return False
+        return True
+
+    def move_handles(self, widget, handle_id, x, y, x2, y2):
+        self.canvas.coords(handle_id, x, y, x2, y2)
+
+    def move_widget(self, widget, dx, dy):
         if hasattr(self, "canvas"):
-            self.canvas.move(widget.image_id, x, y)
+            self.canvas.move(widget.image_id, dx, dy)
             children = flattenDict(self.get_child_widgets(widget))
             if children:
                 for child in children:
-                    self.canvas.move(child.image_id, x, y)
+                    self.canvas.move(child.image_id, dx, dy)
                     if child.resizable:
-                        for handle_id in child.handles.values():
-                            self.canvas.move(handle_id, x, y)
+                        for handle_id in child.resize_handles:
+                            self.canvas.move(handle_id, dx, dy)
+                    # Update child positions
+                    child.x += dx
+                    child.y += dy
+            return True
         else:
             raise Exception("Canvas of wrm not set")
+
 
     def add_widget(self, widget_name):
         if not widget_name in self.widgets.keys():
@@ -64,9 +91,12 @@ class WidgetRelationshipManager(object):
             if key is parent_widget:
                 return value
             elif isinstance(value, dict):
-                return self.get_child_widgets(parent_widget, value)
+                result = self.get_child_widgets(parent_widget, value)
+                if result:
+                    return result
 
         return {}
+
 
     def get_parent_widgets(self, widget, widget_dict=None):
         if widget_dict is None:
@@ -81,6 +111,26 @@ class WidgetRelationshipManager(object):
 
         return None
 
+    def remove_widget(self, widget, _dict=None) -> None | dict:
+        if _dict is None:
+            _dict = self.widgets
+
+        for key, value in list(_dict.items()):
+            if key == widget:
+                # Found the widget, remove it and return its data
+                return _dict.pop(key)
+            elif isinstance(value, dict):
+                # Recursively search in the nested dictionary
+                result = self.remove_widget(widget, value)
+                if result is not None:
+                    # If the widget was found and removed in the nested dict, return the result
+                    return result
+        return None
+
+
+    def remove_child_widget(self, widget, parent):
+        childs = self.remove_widget(widget)
+        self.widgets[widget] = childs
 
     def create_window(self, x=30, y=30, width=100, height=100, text="", parent=None) -> MainWindowLabel:
         if hasattr(self, "canvas"):
@@ -88,6 +138,9 @@ class WidgetRelationshipManager(object):
             wdg.dragged_signal.connect(self.move_widget)
             wdg.resized_signal.connect(self.recalculate_tiled_image)
             wdg.delete_signal.connect(self.delete_widget)
+            wdg.dragged_handle_signal.connect(self.move_handles)
+            wdg.clicked_signal.connect(self.__emit_clicked)
+            wdg.unbind_from_parent_signal.connect(lambda widget: self.remove_child_widget(widget, widget.parent))
             if parent is None:
                 self.add_widget(wdg)
             else:
@@ -102,6 +155,9 @@ class WidgetRelationshipManager(object):
             wdg.dragged_signal.connect(self.move_widget)
             wdg.resized_signal.connect(self.recalculate_tiled_image)
             wdg.delete_signal.connect(self.delete_widget)
+            wdg.dragged_handle_signal.connect(self.move_handles)
+            wdg.clicked_signal.connect(self.__emit_clicked)
+            wdg.unbind_from_parent_signal.connect(self.remove_child_widget)
             if parent is None:
                 self.add_widget(wdg)
             else:
@@ -115,7 +171,7 @@ class WidgetRelationshipManager(object):
         for child in children + [obj]:
             self.canvas.delete(child.image_id)
             if child.resizable:
-                for handle_id in child.handles.values():
+                for handle_id in child.resize_handles:
                     self.canvas.delete(handle_id)
 
 
@@ -139,5 +195,5 @@ class WidgetRelationshipManager(object):
                                 },
                                 )
 
-            self.til_img_list.append(make_final_image(til_img))
-            self.canvas.itemconfig(obj.image_id, image=self.til_img_list[-1])
+            self.til_img_map[obj.image_id] = make_final_image(til_img)
+            self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])

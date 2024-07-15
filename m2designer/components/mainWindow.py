@@ -26,3 +26,6 @@ class MainWindowLabel(DraggableLabel):
 
         self.til_img = make_final_image(til_img)
         super().__init__(canvas=canvas, width=width, height=height, image=self.til_img, resizable=True, *args, **kwargs)
+
+    def __str__(self):
+        return f"mainframe"

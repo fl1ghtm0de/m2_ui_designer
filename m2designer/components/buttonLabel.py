@@ -22,3 +22,6 @@ class Button(DraggableLabel):
         img_path = Config().construct_path(Config().BUTTON_PATH, f"{self.button_type}_button.png")
         self.til_img = ImageTk.PhotoImage(Image.open(img_path), size=(width, height))
         super().__init__(canvas=canvas, image=self.til_img, width=width, height=height, *args, **kwargs)
+
+    def __str__(self):
+        return f"button {self.button_type}"

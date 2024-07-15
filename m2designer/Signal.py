@@ -21,6 +21,6 @@ class Signal:
     def emit(self, *args, **kwargs):
         if self.__validate_types(*args, **kwargs):
             if self.func is not None:
-                self.func(*args, **kwargs)
+                return self.func(*args, **kwargs)
             else:
                 print("Warning: No callback function connected")

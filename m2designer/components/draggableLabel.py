@@ -17,134 +17,128 @@ class DraggableLabel:
             self.x += self.parent.x
             self.y += self.parent.y
 
-        self.image_id = self.canvas.create_image(self.x, self.y, image=self.til_img, anchor='nw')
+        self.image_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor='nw')
         self.canvas.tag_bind(self.image_id, "<Button-1>", self.on_click)
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
         self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
-        self.canvas.tag_bind(self.image_id, "<Control-Button-1>", self.show_context_menu)
 
-        self.dragged_signal = Signal(object, int, int)
-        self.resized_signal = Signal(object, int, int)
-        self.delete_signal = Signal(object)
+        self.dragged_signal = Signal(DraggableLabel, int, int)
+        self.dragged_handle_signal = Signal(DraggableLabel, int, float, float, float, float)
+        self.resized_signal = Signal(DraggableLabel, int, int)
+        self.delete_signal = Signal(DraggableLabel)
+        self.unbind_from_parent_signal = Signal(DraggableLabel)
+        self.clicked_signal = Signal(object)
+        self.arrow_drag_signal = Signal(int, int)
 
+        self.arrow_drag_signal.connect(self.on_arrow_drag)
         self.create_context_menu()
         if self.resizable:
-            self._create_resize_handles()
+            self.active_resize_handle = None
+            self.resize_handles = self.create_resize_handles()
 
-    def _create_resize_handles(self):
-        self.handles = {
-            "nw": self.canvas.create_oval(self.x-5, self.y-5, self.x+5, self.y+5, fill="red", tags="resize"),
-            "ne": self.canvas.create_oval(self.x + self.width-5, self.y-5, self.x + self.width+5, self.y+5, fill="red", tags="resize"),
-            "sw": self.canvas.create_oval(self.x-5, self.y + self.height-5, self.x+5, self.y + self.height+5, fill="red", tags="resize"),
-            "se": self.canvas.create_oval(self.x + self.width-5, self.y + self.height-5, self.x + self.width+5, self.y + self.height+5, fill="red", tags="resize")
-        }
+    def create_resize_handles(self):
+        size = 8
+        resize_handles = []
+        positions = [
+            (self.x - size / 2, self.y - size / 2),
+            (self.x + self.width - size / 2, self.y - size / 2),
+            (self.x - size / 2, self.y + self.height - size / 2),
+            (self.x + self.width - size / 2, self.y + self.height - size / 2)
+        ]
 
-        for handle in self.handles.values():
-            self.canvas.tag_bind(handle, "<Button-1>", self.on_click)
+        for pos in positions:
+            handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="red")
+            self.canvas.tag_bind(handle, "<Button-1>", self.on_resize_click)
             self.canvas.tag_bind(handle, "<B1-Motion>", self.on_resize_drag)
-            self.canvas.tag_bind(handle, "<ButtonRelease-1>", lambda event: self.on_drop("handle", event))
+            resize_handles.append(handle)
 
-    def _update_resize_handles(self):
-        x, y = self.canvas.coords(self.image_id)
-        self.canvas.coords(self.handles["nw"], x-5, y-5, x+5, y+5)
-        self.canvas.coords(self.handles["ne"], x + self.width-5, y-5, x + self.width+5, y+5)
-        self.canvas.coords(self.handles["sw"], x-5, y + self.height-5, x+5, y + self.height+5)
-        self.canvas.coords(self.handles["se"], x + self.width-5, y + self.height-5, x + self.width+5, y + self.height+5)
+        return resize_handles
 
     def on_click(self, event):
-        # Store the initial position when dragging starts
-        self._drag_start_x = event.x
-        self._drag_start_y = event.y
+        self.offset_x = event.x - self.canvas.coords(self.image_id)[0]
+        self.offset_y = event.y - self.canvas.coords(self.image_id)[1]
+        self.clicked_signal.emit(self)
 
     def on_drag(self, event):
-        dx = event.x - self._drag_start_x
-        dy = event.y - self._drag_start_y
+        new_x = event.x - self.offset_x
+        new_y = event.y - self.offset_y
+        dx = new_x - self.x
+        dy = new_y - self.y
+        self.x, self.y = new_x, new_y
+        self.dragged_signal.emit(self, int(dx), int(dy))
 
-        if self.parent is not None:
-            parent_x, parent_y = self.canvas.coords(self.parent.image_id)
-            x, y = self.canvas.coords(self.image_id)
-            if x - parent_x <= 0:
-                dx = 1
-            elif x + self.width >= parent_x + self.parent.width:
-                dx = -1
-
-            if y - parent_y <= 0:
-                dy = 1
-            elif y + self.height >= parent_y + self.parent.height:
-                dy = -1
-
-        self.dragged_signal.emit(self, dx, dy)
         if self.resizable:
-            self._update_resize_handles()
+            self.update_resize_handles()
 
-        self._drag_start_x = event.x
-        self._drag_start_y = event.y
+    def on_arrow_drag(self, dx, dy):
+        self.x += dx
+        self.y += dy
+        self.dragged_signal.emit(self, dx, dy)
+
+        if self.resizable:
+            self.update_resize_handles()
+
+    def on_resize_click(self, event):
+        self.active_resize_handle = self.canvas.find_closest(event.x, event.y)[0]
+        self.offset_x = event.x
+        self.offset_y = event.y
 
     def on_resize_drag(self, event):
-        handle = self.canvas.find_closest(event.x, event.y)[0]
-        x, y = self.canvas.coords(self.image_id)
-        new_x, new_y = x, y
+        if self.active_resize_handle is not None:
+            index = self.resize_handles.index(self.active_resize_handle)
+            dx = event.x - self.offset_x
+            dy = event.y - self.offset_y
 
-        if handle == self.handles["nw"]:
-            new_x = x + (event.x - self._drag_start_x)
-            new_y = y + (event.y - self._drag_start_y)
-            if new_x > x + self.width:
-                new_x = x + self.width
-            if new_y > y + self.height:
-                new_y = y + self.height
-            self.width -= new_x - x
-            self.height -= new_y - y
-            self.canvas.coords(self.image_id, new_x, new_y)
-        elif handle == self.handles["ne"]:
-            new_width = (event.x - x)
-            new_y = y + (event.y - self._drag_start_y)
-            if new_width < 0:
-                new_width = 0
-            if new_y > y + self.height:
-                new_y = y + self.height
-            self.width = new_width
-            self.height -= new_y - y
-            self.canvas.coords(self.image_id, x, new_y)
-        elif handle == self.handles["sw"]:
-            new_x = x + (event.x - self._drag_start_x)
-            new_height = (event.y - y)
-            if new_x > x + self.width:
-                new_x = x + self.width
-            if new_height < 0:
-                new_height = 0
-            self.width -= new_x - x
-            self.height = new_height
-            self.canvas.coords(self.image_id, new_x, y)
-        elif handle == self.handles["se"]:
-            new_width = (event.x - x)
-            new_height = (event.y - y)
-            if new_width < 0:
-                new_width = 0
-            if new_height < 0:
-                new_height = 0
-            self.width = new_width
-            self.height = new_height
+            if index == 0:  # Top-left handle
+                new_x = self.x + dx
+                new_y = self.y + dy
+                new_width = self.width - dx
+                new_height = self.height - dy
+            elif index == 1:  # Top-right handle
+                new_x = self.x
+                new_y = self.y + dy
+                new_width = self.width + dx
+                new_height = self.height - dy
+            elif index == 2:  # Bottom-left handle
+                new_x = self.x + dx
+                new_y = self.y
+                new_width = self.width - dx
+                new_height = self.height + dy
+            elif index == 3:  # Bottom-right handle
+                new_x = self.x
+                new_y = self.y
+                new_width = self.width + dx
+                new_height = self.height + dy
 
-        # Ensure positive dimensions
-        if self.width < 0:
-            self.width *= -1
-            new_x -= self.width
-        if self.height < 0:
-            self.height *= -1
-            new_y -= self.height
+            if new_width > 0 and new_height > 0:
+                self.x, self.y = new_x, new_y
+                self.width, self.height = new_width, new_height
+                self.canvas.coords(self.image_id, self.x, self.y)
+                self.resized_signal.emit(self, self.width, self.height)
+                # self.canvas.itemconfig(self.image_id, image=self.resize_image(self.image, self.width, self.height))
+                if self.resizable:
+                    self.update_resize_handles()
 
-        self.canvas.coords(self.image_id, new_x, new_y)
-        self._update_resize_handles()
+            self.offset_x = event.x
+            self.offset_y = event.y
 
-        self._drag_start_x = event.x
-        self._drag_start_y = event.y
+    def update_resize_handles(self):
+        size = 8
+        positions = [
+            (self.x - size / 2, self.y - size / 2),
+            (self.x + self.width - size / 2, self.y - size / 2),
+            (self.x - size / 2, self.y + self.height - size / 2),
+            (self.x + self.width - size / 2, self.y + self.height - size / 2)
+        ]
 
+        for i, handle in enumerate(self.resize_handles):
+            self.dragged_handle_signal.emit(self, handle, positions[i][0], positions[i][1], positions[i][0] + size, positions[i][1] + size)
 
     def on_drop(self, caller, event):
         self._drag_data = None
-        if caller == "handle":
-            self.resized_signal.emit(self, int(self.width), int(self.height))
+        # if caller == "handle":
+        #     self.resized_signal.emit(self, int(self.width), int(self.height))
 
     def move(self, dx, dy):
         self.dragged_signal.emit(self, dx, dy)
@@ -161,7 +155,7 @@ class DraggableLabel:
 
     def create_context_menu(self):
         self.context_menu = Menu(self.canvas, tearoff=0)
-        self.context_menu.add_command(label="Option 1", command=lambda: print("option1", self))
+        self.context_menu.add_command(label="Unbind from parent", command=self.unbind_from_parent)
         self.context_menu.add_command(label="Option 2", command=lambda: print("option2", self))
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Delete", command=self.destroy)
@@ -169,8 +163,11 @@ class DraggableLabel:
     def destroy(self):
         self.delete_signal.emit(self)
 
+    def unbind_from_parent(self):
+        self.unbind_from_parent_signal.emit(self)
+        # self.parent = None
+
     def show_context_menu(self, event):
-        print("hit")
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root)
         finally:
