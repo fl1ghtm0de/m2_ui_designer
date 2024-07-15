@@ -8,6 +8,7 @@ from Signal import Signal
 class WidgetRelationshipManager(object):
     """singleton class to keep track of all placed widgets and their relationships
     """
+
     def __new__(cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(WidgetRelationshipManager, cls).__new__(cls)
