@@ -61,7 +61,10 @@ class View:
     def handle_sidebar_signal(self, _type):
         _func = self.type_widget_map.get(_type, None)
         if _func is not None:
-            _func()
+            wdg = _func()
+            self.wrm.hide_handles(self.wrm.get_curr_widget())
+            self.wrm.set_curr_widget(wdg)
+            self.wrm.show_handles(wdg)
 
     def on_arrow_drag(self, dx, dy):
         wdg = self.wrm.get_curr_widget()

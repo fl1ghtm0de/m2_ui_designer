@@ -28,8 +28,28 @@ class WidgetRelationshipManager(object):
     def get_curr_widget(self) -> DraggableLabel:
         return self.curr_widget
 
+    def hide_handles(self, wdg:DraggableLabel):
+        if wdg is not None and wdg.resizable:
+            for handle in wdg.resize_handles:
+                self.canvas.itemconfigure(handle, state="hidden")
+
+    def show_handles(self, wdg:DraggableLabel):
+        if wdg is not None and wdg.resizable:
+            for handle in wdg.resize_handles:
+                self.canvas.itemconfigure(handle, state="normal")
+
+    def set_curr_widget(self, wdg):
+        if isinstance(wdg, DraggableLabel) or wdg is None:
+            if wdg is None:
+                self.hide_handles(self.curr_widget)
+            self.curr_widget = wdg
+
+
     def __emit_clicked(self, widget):
-        self.curr_widget = widget
+        self.hide_handles(self.curr_widget)
+        self.set_curr_widget(widget)
+        self.show_handles(self.curr_widget)
+
         self.clicked_signal.emit(int(widget.x), int(widget.y), int(widget.width), int(widget.height), str(widget), str(widget.parent))
 
     def __is_movable(self, widget):
@@ -142,6 +162,8 @@ class WidgetRelationshipManager(object):
             wdg.dragged_handle_signal.connect(self.move_handles)
             wdg.clicked_signal.connect(self.__emit_clicked)
             wdg.unbind_from_parent_signal.connect(lambda widget: self.remove_child_widget(widget, widget.parent))
+            self.hide_handles(wdg)
+
             if parent is None:
                 self.add_widget(wdg)
             else:
@@ -159,6 +181,8 @@ class WidgetRelationshipManager(object):
             wdg.dragged_handle_signal.connect(self.move_handles)
             wdg.clicked_signal.connect(self.__emit_clicked)
             wdg.unbind_from_parent_signal.connect(self.remove_child_widget)
+            self.hide_handles(wdg)
+
             if parent is None:
                 self.add_widget(wdg)
             else:
