@@ -5,6 +5,8 @@ from tools.utils import flattenDict
 from sidebar import SidebarLeft, SidebarBottom
 from Signal import Signal
 
+from ConfigLoader import Config
+
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
@@ -12,11 +14,6 @@ class View:
     def __init__(self):
         self.wrm = WidgetRelationshipManager()
         self.set_bottom_sidebar_values_signal = Signal(int, int, int, int, str)
-        self.type_widget_map = {
-            "frame" : self.wrm.create_window,
-            "button" : self.wrm.create_button,
-            "textfield" : None
-        }
 
         self.__setup_ui()
 
@@ -46,25 +43,21 @@ class View:
         self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_bottom.set_entry_values)
 
-        w = self.wrm.create_window(100, 100, 600, 600, text="w")
-        w1 = self.wrm.create_window(10, 10, 200, 140, parent=w, text="w1")
-        b1 = self.wrm.create_button(10, 10, parent=w, text="b1")
-        a = self.wrm.create_window(10, 200, 30, 30, parent=w, text="a")
-        b = self.wrm.create_window(45, 200, 30, 30, parent=w, text="b")
-        w1_1 = self.wrm.create_window(10, 10, 180, 40, parent=w1, text="w1_1")
-        w1_2 = self.wrm.create_window(75, 55, 130, 40, parent=w1, text="w1_2")
-
-        print(self.wrm.widgets)
+        # w = self.wrm.create_widget(_type="board", canvas=self.canvas, x=100, y=100, width=600, height=600)
+        # w1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=200, height=140, parent=w, text="w1")
+        # b1 = self.wrm.create_widget(_type="button", button_type="large", canvas=self.canvas, x=10, y=10, parent=w)
+        # a = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=200, width=30, height=30, parent=w)
+        # b = self.wrm.create_widget(_type="board", canvas=self.canvas, x=45, y=200, width=30, height=30, parent=w)
+        # w1_1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=180, height=40, parent=w1)
+        # w1_2 = self.wrm.create_widget(_type="thinboard", canvas=self.canvas, x=75, y=55, width=130, height=40, parent=w1)
 
         self.app.mainloop()
 
-    def handle_sidebar_signal(self, _type):
-        _func = self.type_widget_map.get(_type, None)
-        if _func is not None:
-            wdg = _func()
-            self.wrm.hide_handles(self.wrm.get_curr_widget())
-            self.wrm.set_curr_widget(wdg)
-            self.wrm.show_handles(wdg)
+    def handle_sidebar_signal(self, _dict:dict):
+        wdg = self.wrm.create_widget(**_dict, canvas=self.canvas, x=20, y=20)
+        self.wrm.hide_handles(self.wrm.get_curr_widget())
+        self.wrm.set_curr_widget(wdg)
+        self.wrm.show_handles(wdg)
 
     def on_arrow_drag(self, dx, dy):
         wdg = self.wrm.get_curr_widget()

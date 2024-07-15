@@ -9,9 +9,12 @@ class DraggableLabel:
         self.width = kwargs.pop("width", 100)
         self.height = kwargs.pop("height", 100)
         self.image = kwargs.pop("image", None)
+        self.image_path = kwargs.pop("image_path", None)
+        self.image_borders = kwargs.pop("image_borders", None)
         self.canvas = canvas
         self.parent = kwargs.pop("parent", None)
         self.resizable = kwargs.pop("resizable", False)
+        self.resize_type = kwargs.pop("resize_type", "stretch")
         # self.item_id = self.canvas.create_text(self.x, self.y, text=self.text, font=("Helvetica", 16), fill="black")
         if self.parent is not None:
             self.x += self.parent.x
@@ -28,8 +31,11 @@ class DraggableLabel:
         self.resized_signal = Signal(DraggableLabel, int, int)
         self.delete_signal = Signal(DraggableLabel)
         self.unbind_from_parent_signal = Signal(DraggableLabel)
+        self.bind_to_parent_signal = Signal(DraggableLabel)
         self.clicked_signal = Signal(object)
         self.arrow_drag_signal = Signal(int, int)
+        self.inc_zindex_signal = Signal(DraggableLabel)
+        self.dec_zindex_signal = Signal(DraggableLabel)
 
         self.arrow_drag_signal.connect(self.on_arrow_drag)
         self.create_context_menu()
@@ -156,7 +162,10 @@ class DraggableLabel:
     def create_context_menu(self):
         self.context_menu = Menu(self.canvas, tearoff=0)
         self.context_menu.add_command(label="Unbind from parent", command=self.unbind_from_parent)
-        self.context_menu.add_command(label="Option 2", command=lambda: print("option2", self))
+        self.context_menu.add_command(label="Bind to parent", command=self.bind_to_parent)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Increase z-index", command=lambda: self.inc_zindex_signal.emit(self))
+        self.context_menu.add_command(label="Decrease z-index", command=lambda: self.dec_zindex_signal.emit(self))
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Delete", command=self.destroy)
 
@@ -165,9 +174,16 @@ class DraggableLabel:
 
     def unbind_from_parent(self):
         self.unbind_from_parent_signal.emit(self)
+        self.parent = None
+
+    def bind_to_parent(self):
         # self.parent = None
+        success, parent = self.bind_to_parent_signal.emit(self)
+        if success:
+            self.parent = parent
 
     def show_context_menu(self, event):
+        self.clicked_signal.emit(self)
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root)
         finally:

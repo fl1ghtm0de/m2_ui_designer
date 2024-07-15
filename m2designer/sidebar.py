@@ -4,7 +4,7 @@ from Signal import Signal
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
-        self.create_widget_signal = Signal(str)
+        self.create_widget_signal = Signal(dict)
 
         self.configure(width=200, corner_radius=0)
 
@@ -24,14 +24,35 @@ class SidebarLeft(Sidebar):
         self.logo_label = ctk.CTkLabel(self, text="m2 ui designer\nby flightm0de", font=("Helvetica", 16, "bold"))
         self.logo_label.pack(pady=20, padx=10)
 
-        self.frame_btn = ctk.CTkButton(self, text="Frame", command=lambda: self.create_widget_signal.emit("frame"))
+        self.frame_btn = ctk.CTkButton(self, text="Board", command=lambda: self.create_widget_signal.emit({"_type": "board", "width" : 100, "height" : 100}))
         self.frame_btn.pack(pady=10, padx=10)
 
-        self.button_btn = ctk.CTkButton(self, text="Button", command=lambda: self.create_widget_signal.emit("button"))
-        self.button_btn.pack(pady=10, padx=10)
+        self.thinboard_btn = ctk.CTkButton(self, text="Thinboard", command=lambda: self.create_widget_signal.emit({"_type": "thinboard", "width" : 100, "height" : 100}))
+        self.thinboard_btn.pack(pady=10, padx=10)
 
-        self.textfield_btn = ctk.CTkButton(self, text="Textfield", command=lambda: self.create_widget_signal.emit("textfield"))
-        self.textfield_btn.pack(pady=10, padx=10)
+        self.big_btn = ctk.CTkButton(self, text="Button Big", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "big"}))
+        self.big_btn.pack(pady=10, padx=10)
+
+        self.large_btn = ctk.CTkButton(self, text="Button Large", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "large"}))
+        self.large_btn.pack(pady=10, padx=10)
+
+        self.middle_btn = ctk.CTkButton(self, text="Button Middle", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "middle"}))
+        self.middle_btn.pack(pady=10, padx=10)
+
+        self.small_btn = ctk.CTkButton(self, text="Button Small", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "small"}))
+        self.small_btn.pack(pady=10, padx=10)
+
+        self.small_thin_btn = ctk.CTkButton(self, text="Button Small_Thin", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "small_thin"}))
+        self.small_thin_btn.pack(pady=10, padx=10)
+
+        self.xlarge_btn = ctk.CTkButton(self, text="Button XLarge", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "xlarge"}))
+        self.xlarge_btn.pack(pady=10, padx=10)
+
+        self.xlarge_thin_btn = ctk.CTkButton(self, text="Button XLarge_Thin", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "xlarge_thin"}))
+        self.xlarge_thin_btn.pack(pady=10, padx=10)
+
+        self.xsmall_btn = ctk.CTkButton(self, text="Button XSmall", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "xsmall"}))
+        self.xsmall_btn.pack(pady=10, padx=10)
 
 class SidebarBottom(Sidebar):
     def __init__(self, master, **kwargs):
