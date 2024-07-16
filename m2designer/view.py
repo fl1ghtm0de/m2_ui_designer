@@ -22,6 +22,8 @@ class View:
         """
         self.app = customtkinter.CTk()
         self.app.geometry("1600x900")
+        self.app.iconbitmap("icon.ico")
+        self.app.title("m2designer")
 
         self.app.bind("<Left>", lambda e: self.on_arrow_drag(dx=-2, dy=0))
         self.app.bind("<Right>", lambda e: self.on_arrow_drag(dx=2, dy=0))

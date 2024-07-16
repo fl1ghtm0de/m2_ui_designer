@@ -18,7 +18,8 @@ class Button(DraggableLabel):
         self.button_type = button_type.lower()
         width = Button.sizeMapping.get(button_type, (0, 0))[0]
         height = Button.sizeMapping.get(button_type, (0, 0))[1]
-        img_path = Config().construct_path(Config().BUTTON_PATH, f"{self.button_type}_button.png")
+        cfg_loader = Config()
+        img_path = cfg_loader.construct_path(cfg_loader.BUTTON_PATH, f"{self.button_type}_button.png")
         self.stretch_img = stretch_image(img_path, width, height, 3)
         super().__init__(canvas=canvas, image=self.stretch_img, image_path=img_path, width=width, height=height, *args, **kwargs)
 
