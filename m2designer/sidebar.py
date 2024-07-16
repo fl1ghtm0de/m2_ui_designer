@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
-from Signal import Signal
+from ctk_signal import Signal
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master=None, **kwargs):

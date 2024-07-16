@@ -1,7 +1,7 @@
 from components.base_widget import BaseWidget
 from tools.image_tools import create_tiled_image, add_borders, make_final_image
 from tkinter import Canvas
-from ConfigLoader import Config
+from config_loader import Config
 class Board(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)

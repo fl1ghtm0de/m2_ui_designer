@@ -1,6 +1,6 @@
 from components.base_widget import BaseWidget
 from PIL import Image, ImageTk
-from ConfigLoader import Config
+from config_loader import Config
 from tools.image_tools import stretch_image
 
 class Button(BaseWidget):

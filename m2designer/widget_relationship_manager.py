@@ -5,8 +5,8 @@ from components.base_widget import BaseWidget
 from components.thinboard import Thinboard
 from components.slot import Slot
 from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image
-from ConfigLoader import Config
-from Signal import Signal
+from config_loader import Config
+from ctk_signal import Signal
 class WidgetRelationshipManager(object):
     """singleton class to keep track of all placed widgets and their relationships
     """

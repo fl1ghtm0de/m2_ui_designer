@@ -1,11 +1,11 @@
 import customtkinter
-from WidgetRelationshipManager import WidgetRelationshipManager
+from widget_relationship_manager import WidgetRelationshipManager
 from tkinter import Canvas
 from tools.utils import flattenDict
 from sidebar import SidebarLeft, SidebarBottom
-from Signal import Signal
+from ctk_signal import Signal
 
-from ConfigLoader import Config
+from config_loader import Config
 
 customtkinter.set_appearance_mode("System")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green

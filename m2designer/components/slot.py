@@ -1,6 +1,6 @@
 from components.base_widget import BaseWidget
 from tools.image_tools import stretch_image
-from ConfigLoader import Config
+from config_loader import Config
 
 class Slot(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):

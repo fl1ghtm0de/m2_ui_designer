@@ -1,7 +1,7 @@
 from components.base_widget import BaseWidget
 from tools.image_tools import stretch_image
 from tkinter import Canvas
-from ConfigLoader import Config
+from config_loader import Config
 
 class Thinboard(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):

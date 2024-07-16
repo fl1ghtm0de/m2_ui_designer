@@ -1,5 +1,5 @@
 from tkinter import Menu
-from Signal import Signal
+from ctk_signal import Signal
 
 class BaseWidget:
     def __init__(self, canvas, *args, **kwargs):
