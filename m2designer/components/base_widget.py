@@ -1,6 +1,7 @@
 from tkinter import Menu
 from Signal import Signal
-class DraggableLabel:
+
+class BaseWidget:
     def __init__(self, canvas, *args, **kwargs):
         self.x = kwargs.pop("x", 0)
         self.y = kwargs.pop("y", 0)
@@ -26,16 +27,16 @@ class DraggableLabel:
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
         self.canvas.tag_bind(self.image_id, "<Button-2>", self.show_context_menu)
         self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
-        self.dragged_signal = Signal(DraggableLabel, int, int)
-        self.dragged_handle_signal = Signal(DraggableLabel, int, float, float, float, float)
-        self.resized_signal = Signal(DraggableLabel, int, int)
-        self.delete_signal = Signal(DraggableLabel)
-        self.unbind_from_parent_signal = Signal(DraggableLabel)
-        self.bind_to_parent_signal = Signal(DraggableLabel)
+        self.dragged_signal = Signal(BaseWidget, int, int)
+        self.dragged_handle_signal = Signal(BaseWidget, int, float, float, float, float)
+        self.resized_signal = Signal(BaseWidget, int, int)
+        self.delete_signal = Signal(BaseWidget)
+        self.unbind_from_parent_signal = Signal(BaseWidget)
+        self.bind_to_parent_signal = Signal(BaseWidget)
         self.clicked_signal = Signal(object)
         self.arrow_drag_signal = Signal(int, int)
-        self.inc_zindex_signal = Signal(DraggableLabel)
-        self.dec_zindex_signal = Signal(DraggableLabel)
+        self.inc_zindex_signal = Signal(BaseWidget)
+        self.dec_zindex_signal = Signal(BaseWidget)
 
         self.arrow_drag_signal.connect(self.on_arrow_drag)
         self.create_context_menu()

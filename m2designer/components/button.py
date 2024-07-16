@@ -1,8 +1,9 @@
-from components.draggableLabel import DraggableLabel
+from components.base_widget import BaseWidget
 from PIL import Image, ImageTk
 from ConfigLoader import Config
 from tools.image_tools import stretch_image
-class Button(DraggableLabel):
+
+class Button(BaseWidget):
     sizeMapping = {
         "big" : (51, 37),
         "large" : (88, 21),

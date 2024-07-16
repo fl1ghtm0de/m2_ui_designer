@@ -1,9 +1,9 @@
-from components.draggableLabel import DraggableLabel
+from components.base_widget import BaseWidget
 from tools.image_tools import stretch_image
 from tkinter import Canvas
 from ConfigLoader import Config
 
-class Thinboard(DraggableLabel):
+class Thinboard(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)

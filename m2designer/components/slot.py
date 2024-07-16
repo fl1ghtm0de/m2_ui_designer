@@ -1,8 +1,8 @@
-from components.draggableLabel import DraggableLabel
+from components.base_widget import BaseWidget
 from tools.image_tools import stretch_image
 from ConfigLoader import Config
 
-class Slot(DraggableLabel):
+class Slot(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)

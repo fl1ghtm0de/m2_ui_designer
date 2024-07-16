@@ -1,8 +1,8 @@
-from components.draggableLabel import DraggableLabel
+from components.base_widget import BaseWidget
 from tools.image_tools import create_tiled_image, add_borders, make_final_image
 from tkinter import Canvas
 from ConfigLoader import Config
-class Board(DraggableLabel):
+class Board(BaseWidget):
     def __init__(self, canvas, *args, **kwargs):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)

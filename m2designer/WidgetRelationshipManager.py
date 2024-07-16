@@ -1,7 +1,7 @@
 from tools.utils import flattenDict
 from components.board import Board
-from components.buttonLabel import Button
-from components.draggableLabel import DraggableLabel
+from components.button import Button
+from components.base_widget import BaseWidget
 from components.thinboard import Thinboard
 from components.slot import Slot
 from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image
@@ -30,7 +30,7 @@ class WidgetRelationshipManager(object):
                 "slot" : {"obj" : Slot, "resize_type" : "stretch"}
             }
 
-    def __check_overlap(self, child_wdg: DraggableLabel, _dict=None) -> DraggableLabel | None:
+    def __check_overlap(self, child_wdg: BaseWidget, _dict=None) -> BaseWidget | None:
         """Checks if child_wdg is completely inside another widget. If so, it returns this widget, otherwise None."""
         if _dict is None:
             _dict = self.widgets
@@ -69,22 +69,22 @@ class WidgetRelationshipManager(object):
     def set_canvas(self, canvas):
         self.canvas = canvas
 
-    def get_curr_widget(self) -> DraggableLabel:
+    def get_curr_widget(self) -> BaseWidget:
         return self.curr_widget
 
-    def hide_handles(self, wdg:DraggableLabel):
+    def hide_handles(self, wdg:BaseWidget):
         if wdg is not None and wdg.resizable:
             for handle in wdg.resize_handles:
                 self.canvas.itemconfigure(handle, state="hidden")
 
-    def show_handles(self, wdg:DraggableLabel):
+    def show_handles(self, wdg:BaseWidget):
         if wdg is not None and wdg.resizable:
             for handle in wdg.resize_handles:
                 self.canvas.itemconfigure(handle, state="normal")
                 self.canvas.tag_raise(handle)
 
     def set_curr_widget(self, wdg):
-        if isinstance(wdg, DraggableLabel) or wdg is None:
+        if isinstance(wdg, BaseWidget) or wdg is None:
             if wdg is None:
                 self.hide_handles(self.curr_widget)
             self.curr_widget = wdg
@@ -263,7 +263,7 @@ class WidgetRelationshipManager(object):
             return True, parent
         return False, None
 
-    def create_widget(self, _type:str, **kwargs) -> DraggableLabel:
+    def create_widget(self, _type:str, **kwargs) -> BaseWidget:
         obj = self.obj_type_map.get(_type, None)
         if obj is None:
             raise Exception(f"Widget of type {_type} not existing in wrm.obj_type_map")
@@ -322,7 +322,7 @@ class WidgetRelationshipManager(object):
 
 
     def recalculate_image(self, obj, width, height):
-        if isinstance(obj, DraggableLabel):
+        if isinstance(obj, BaseWidget):
             if obj.resize_type == "tile":
                 til_img = create_tiled_image(obj.image_path, width, height)
                 til_img = add_borders(til_img, obj.image_borders)
