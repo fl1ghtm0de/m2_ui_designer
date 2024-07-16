@@ -1,6 +1,5 @@
 from tkinter import Menu
 from Signal import Signal
-from customtkinter import CTkOptionMenu
 class DraggableLabel:
     def __init__(self, canvas, *args, **kwargs):
         self.x = kwargs.pop("x", 0)
@@ -15,6 +14,7 @@ class DraggableLabel:
         self.parent = kwargs.pop("parent", None)
         self.resizable = kwargs.pop("resizable", False)
         self.resize_type = kwargs.pop("resize_type", "stretch")
+        self.resize_locked = False
         # self.item_id = self.canvas.create_text(self.x, self.y, text=self.text, font=("Helvetica", 16), fill="black")
         if self.parent is not None:
             self.x += self.parent.x
@@ -54,7 +54,7 @@ class DraggableLabel:
         ]
 
         for pos in positions:
-            handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="red")
+            handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="skyblue")
             self.canvas.tag_bind(handle, "<Button-1>", self.on_resize_click)
             self.canvas.tag_bind(handle, "<B1-Motion>", self.on_resize_drag)
             resize_handles.append(handle)
@@ -73,6 +73,7 @@ class DraggableLabel:
         dy = new_y - self.y
         self.x, self.y = new_x, new_y
         self.dragged_signal.emit(self, int(dx), int(dy))
+        self.clicked_signal.emit(self)
 
         if self.resizable:
             self.update_resize_handles()
@@ -81,17 +82,18 @@ class DraggableLabel:
         self.x += dx
         self.y += dy
         self.dragged_signal.emit(self, dx, dy)
-
+        self.clicked_signal.emit(self)
         if self.resizable:
             self.update_resize_handles()
 
     def on_resize_click(self, event):
-        self.active_resize_handle = self.canvas.find_closest(event.x, event.y)[0]
-        self.offset_x = event.x
-        self.offset_y = event.y
+        if not self.resize_locked:
+            self.active_resize_handle = self.canvas.find_closest(event.x, event.y)[0]
+            self.offset_x = event.x
+            self.offset_y = event.y
 
     def on_resize_drag(self, event):
-        if self.active_resize_handle is not None:
+        if self.active_resize_handle is not None and not self.resize_locked:
             index = self.resize_handles.index(self.active_resize_handle)
             dx = event.x - self.offset_x
             dy = event.y - self.offset_y
@@ -126,6 +128,8 @@ class DraggableLabel:
                 if self.resizable:
                     self.update_resize_handles()
 
+            self.clicked_signal.emit(self)
+
             self.offset_x = event.x
             self.offset_y = event.y
 
@@ -143,8 +147,6 @@ class DraggableLabel:
 
     def on_drop(self, caller, event):
         self._drag_data = None
-        # if caller == "handle":
-        #     self.resized_signal.emit(self, int(self.width), int(self.height))
 
     def move(self, dx, dy):
         self.dragged_signal.emit(self, dx, dy)
@@ -153,7 +155,7 @@ class DraggableLabel:
         bbox = self.canvas.bbox(self.image_id)
         return bbox[0], bbox[1]
 
-    def get_canvas_object_size(self):
+    def get_size(self):
         bbox = self.canvas.bbox(self.image_id)
         width = bbox[2] - bbox[0]
         height = bbox[3] - bbox[1]
@@ -167,7 +169,18 @@ class DraggableLabel:
         self.context_menu.add_command(label="Increase z-index", command=lambda: self.inc_zindex_signal.emit(self))
         self.context_menu.add_command(label="Decrease z-index", command=lambda: self.dec_zindex_signal.emit(self))
         self.context_menu.add_separator()
+        self.context_menu.add_command(label="Lock Size", command=lambda: self.disable_resizing(True))
+        self.context_menu.add_command(label="Unlock Size", command=lambda: self.disable_resizing(False))
+        self.context_menu.add_separator()
         self.context_menu.add_command(label="Delete", command=self.destroy)
+
+    def disable_resizing(self, state:bool):
+        self.resize_locked = state
+        for handle in self.resize_handles:
+            if state:
+                self.canvas.itemconfig(handle, fill="red")
+            else:
+                self.canvas.itemconfig(handle, fill="skyblue")
 
     def destroy(self):
         self.delete_signal.emit(self)
@@ -181,6 +194,7 @@ class DraggableLabel:
         success, parent = self.bind_to_parent_signal.emit(self)
         if success:
             self.parent = parent
+        self.clicked_signal.emit(self)
 
     def show_context_menu(self, event):
         self.clicked_signal.emit(self)

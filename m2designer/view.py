@@ -13,7 +13,7 @@ customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-bl
 class View:
     def __init__(self):
         self.wrm = WidgetRelationshipManager()
-        self.set_bottom_sidebar_values_signal = Signal(int, int, int, int, str)
+        self.set_bottom_sidebar_values_signal = Signal(int, int, int, int, int, int, str)
 
         self.__setup_ui()
 
@@ -40,6 +40,7 @@ class View:
         self.wrm.set_canvas(self.canvas)
 
         self.sidebar_left.create_widget_signal.connect(self.handle_sidebar_signal)
+        self.sidebar_bottom.entry_input_signal.connect(self.wrm.move_widget_absolute)
         self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_bottom.set_entry_values)
 

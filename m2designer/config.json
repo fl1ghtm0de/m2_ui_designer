@@ -11,5 +11,6 @@
     "top_right_corner" : "images/board_2/board_corner_righttop.png",
     "close_button" : "images/button/close_button.png",
     "minimize_button" : "images/button/minimize_button.png",
-    "thinboard" : "images/board/thinboard.png"
+    "thinboard" : "images/board/thinboard.png",
+    "slot" : "images/components/slot.png"
 }

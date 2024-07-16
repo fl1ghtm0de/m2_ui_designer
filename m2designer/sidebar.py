@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import tkinter as tk
 from Signal import Signal
 
 class Sidebar(ctk.CTkFrame):
@@ -54,39 +55,85 @@ class SidebarLeft(Sidebar):
         self.xsmall_btn = ctk.CTkButton(self, text="Button XSmall", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "xsmall"}))
         self.xsmall_btn.pack(pady=10, padx=10)
 
+        self.slot_btn = ctk.CTkButton(self, text="Slot", command=lambda: self.create_widget_signal.emit({"_type": "slot", "width" : 32, "height" : 32}))
+        self.slot_btn.pack(pady=10, padx=10)
+
 class SidebarBottom(Sidebar):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+        self.entry_input_signal = Signal(int, int, int, int, int, int)
         self.create_widgets()
 
+    def __validate_digits(self, string_var):
+            value = string_var.get()
+            if not value.isdigit():
+                string_var.set(''.join(filter(str.isdigit, value)))
+
     def create_widgets(self):
+        def create_labeled_entry(parent, label_text, placeholder=""):
+            frame = ctk.CTkFrame(parent, fg_color="transparent")
+            label = ctk.CTkLabel(frame, text=label_text)
+            string_var = tk.StringVar()
+            entry = ctk.CTkEntry(frame, placeholder_text=placeholder, textvariable=string_var)
+            label.pack(side="left", padx=5)
+            entry.pack(side="left", padx=5, expand=True, fill="x")
+            frame.pack(side="left", padx=5)
+            entry.bind('<KeyRelease>', self.__on_entry_change)
+            return frame, entry, string_var
+
         # Create a frame for entries
         self.entries_frame = ctk.CTkFrame(self)
         self.entries_frame.pack(pady=10, padx=10, fill="x")
 
-        self.x_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="X")
-        self.x_entry.pack(side="left", padx=5, expand=True, fill="x")
-        self.x_entry
+        self.entries_frame2 = ctk.CTkFrame(self)
+        self.entries_frame2.pack(pady=10, padx=10, fill="x")
 
-        self.y_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="Y")
-        self.y_entry.pack(side="left", padx=5, expand=True, fill="x")
+        self.x_frame, self.x_entry, self.x_string_var = create_labeled_entry(self.entries_frame, "X:\t")
+        self.y_frame, self.y_entry, self.y_string_var = create_labeled_entry(self.entries_frame, "Y:\t")
+        self.width_frame, self.width_entry, self.width_string_var = create_labeled_entry(self.entries_frame, "Width:")
+        self.height_frame, self.height_entry, self.height_string_var = create_labeled_entry(self.entries_frame, "Height:")
+        self.type_frame, self.type_entry, self.type_string_var = create_labeled_entry(self.entries_frame, "Type:")
+        self.parent_frame, self.parent_entry, self.parent_string_var = create_labeled_entry(self.entries_frame, "Parent:")
+        self.x_parent, self.x_parent_entry, self.x_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-X:\t")
+        self.y_parent, self.y_parent_entry, self.y_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-Y:\t")
+        self.type_entry.configure(state="readonly")
+        self.parent_entry.configure(state="readonly")
 
-        self.width_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="Width")
-        self.width_entry.pack(side="left", padx=5, expand=True, fill="x")
+        self.x_string_var.trace_add("write", lambda *args: self.__validate_digits(self.x_string_var))
+        self.y_string_var.trace_add("write", lambda *args: self.__validate_digits(self.y_string_var))
+        self.x_parent_string_var.trace_add("write", lambda *args: self.__validate_digits(self.x_parent_string_var))
+        self.y_parent_string_var.trace_add("write", lambda *args: self.__validate_digits(self.y_parent_string_var))
+        self.width_string_var.trace_add("write", lambda *args: self.__validate_digits(self.width_string_var))
+        self.height_string_var.trace_add("write", lambda *args: self.__validate_digits(self.height_string_var))
 
-        self.height_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="Height")
-        self.height_entry.pack(side="left", padx=5, expand=True, fill="x")
+    def set_entry_values(self, x, y, x_parent, y_parent, width, height, type, parent):
+        self.type_entry.configure(state="normal")
+        self.parent_entry.configure(state="normal")
 
-        self.type_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="Type")
-        self.type_entry.pack(side="left", padx=5, expand=True, fill="x")
+        self.insert_entry_text(self.x_entry, x)
+        self.insert_entry_text(self.y_entry, y)
+        self.insert_entry_text(self.x_parent_entry, x_parent)
+        self.insert_entry_text(self.y_parent_entry, y_parent)
+        self.insert_entry_text(self.width_entry, width)
+        self.insert_entry_text(self.height_entry, height)
+        self.insert_entry_text(self.type_entry, type)
+        self.insert_entry_text(self.parent_entry, parent)
 
-        self.parent_entry = ctk.CTkEntry(self.entries_frame, placeholder_text="Parent")
-        self.parent_entry.pack(side="left", padx=5, expand=True, fill="x")
+        self.type_entry.configure(state="readonly")
+        self.parent_entry.configure(state="readonly")
 
-    def set_entry_values(self, x, y, width, height, type, parent):
-        self.insert_entry_text(self.x_entry, f"X: {x}")
-        self.insert_entry_text(self.y_entry, f"Y: {y}")
-        self.insert_entry_text(self.width_entry, f"Width: {width}")
-        self.insert_entry_text(self.height_entry, f"Height: {height}")
-        self.insert_entry_text(self.type_entry, f"Type: {type}")
-        self.insert_entry_text(self.parent_entry, f"Parent: {parent}")
+    def __on_entry_change(self, event):
+        x = self.x_entry.get()
+        y = self.y_entry.get()
+        x_parent = self.x_parent_entry.get()
+        y_parent = self.y_parent_entry.get()
+        width = self.width_entry.get()
+        height = self.height_entry.get()
+        # type = self.type_entry.get()
+        # parent = self.parent_entry.get()
+        try:
+            int(x), int(y), int(x_parent), int(y_parent), int(width), int(height)
+        except:
+            pass
+        else:
+            self.entry_input_signal.emit(int(x), int(y), int(x_parent), int(y_parent), int(width), int(height))
