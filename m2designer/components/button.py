@@ -25,4 +25,4 @@ class Button(BaseWidget):
         super().__init__(canvas=canvas, image=self.stretch_img, image_path=img_path, width=width, height=height, *args, **kwargs)
 
     def __str__(self):
-        return f"button {self.button_type}"
+        return f"button_{self.button_type}"

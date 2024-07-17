@@ -22,7 +22,7 @@ class WidgetRelationshipManager(object):
             self.initialized = True
             self.widgets = {}
             self.til_img_map = {}
-            self.clicked_signal = Signal(int, int, int, int, int, int, str, str)
+            self.clicked_signal = Signal(int, int, int, int, int, int, str, str, str, str)
             self.curr_widget = None
             self.obj_type_map = {
                 "button" : {"obj" : Button, "resize_type" : "stretch"},
@@ -105,12 +105,12 @@ class WidgetRelationshipManager(object):
             parent_x = widget.x - widget.parent.x
             parent_y = widget.y - widget.parent.y
 
-        self.clicked_signal.emit(int(widget.x), int(widget.y), int(parent_x), int(parent_y), int(widget.width), int(widget.height), str(widget), str(widget.parent))
+        self.clicked_signal.emit(int(widget.x), int(widget.y), int(parent_x), int(parent_y), int(widget.width), int(widget.height), str(widget), str(widget.parent), str(widget.name), str(widget.get_style_string()))
 
     def move_handles(self, widget, handle_id, x, y, x2, y2):
         self.canvas.coords(handle_id, x, y, x2, y2)
 
-    def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, widget=None):
+    def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, widget=None):
         if hasattr(self, "canvas"):
             if widget is None:
                 widget = self.curr_widget
@@ -142,6 +142,12 @@ class WidgetRelationshipManager(object):
             widget.y = target_y
 
             self.move_widget(widget, dx, dy)
+
+            if wdg_name != widget.name:
+                widget.name = wdg_name
+
+            if style != widget.style:
+                widget.style = style
 
             if (curr_width != width or curr_height != height) and not widget.resize_locked:
                 self.recalculate_image(widget, width, height)
@@ -295,14 +301,13 @@ class WidgetRelationshipManager(object):
 
     def delete_widget(self, obj):
         children = flattenDict(self.get_child_widgets(obj))
-        print(obj, self.widgets)
         for child in children + [obj]:
             self.canvas.delete(child.image_id)
+            child.__del__()
             if child.resizable:
                 for handle_id in child.resize_handles:
                     self.canvas.delete(handle_id)
         self.__delete_widget_internally(obj)
-        print(self.widgets)
 
     def __delete_widget_internally(self, obj, _dict=None):
         if _dict is None:
@@ -320,7 +325,6 @@ class WidgetRelationshipManager(object):
                             _dict[key] = {}
                         return True
         return False
-
 
     def recalculate_image(self, obj, width, height):
         if isinstance(obj, BaseWidget):
@@ -344,13 +348,10 @@ class WidgetRelationshipManager(object):
         if self.curr_widget is not None:
             children = flattenDict(self.get_child_widgets(self.curr_widget))
             data = {
-                "name" : "MainWindow",
+                "name" : self.curr_widget.name,
                 "x" : 0,
                 "y" : 0,
-                "style" : (
-                    "movable",
-                    "float",
-                ),
+                "style" : self.curr_widget.get_style(),
                 "width" : self.curr_widget.width,
                 "height" : self.curr_widget.height,
                 "children" : [

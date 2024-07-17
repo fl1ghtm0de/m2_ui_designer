@@ -1,11 +1,53 @@
 from tkinter import Menu
 from ctk_signal import Signal
 
+class WindowIndexManager:
+    def __new__(cls):
+        if not hasattr(cls, "instance"):
+            cls.instance = super(WindowIndexManager, cls).__new__(cls)
+        return cls.instance
+
+    def __init__(self):
+        if not hasattr(self, "initialized"):
+            self.initialized = True
+            self.used_index_list = {}
+
+    def get_next_index(self, _type):
+        if self.used_index_list.get(_type, None) is None:
+            self.used_index_list[_type] = []
+
+        if len(self.used_index_list[_type]) == 0:
+            index = 0
+        else:
+            # Sort the list of used indices
+            sorted_indices = sorted(self.used_index_list[_type])
+
+            # Find the smallest missing index
+            index = None
+            for i in range(len(sorted_indices)):
+                if sorted_indices[i] != i:
+                    index = i
+                    break
+
+            # If no missing index is found, use the next highest index
+            if index is None:
+                index = sorted_indices[-1] + 1
+
+        self.used_index_list[_type].append(index)
+        return index
+
+    def free_index(self, _type, index):
+        if self.used_index_list.get(_type, None) is not None:
+            self.used_index_list[_type].remove(index)
 class BaseWidget:
     def __init__(self, canvas, *args, **kwargs):
+        self.index_mgr = WindowIndexManager()
         self.x = kwargs.pop("x", 0)
         self.y = kwargs.pop("y", 0)
         self.text = kwargs.pop("text", "default")
+        self.__index = self.index_mgr.get_next_index(type(self))
+        self.name = kwargs.pop("name", f"{str(self)}_{self.__index}")
+        self.style = kwargs.pop("style", [])
         self.width = kwargs.pop("width", 100)
         self.height = kwargs.pop("height", 100)
         self.image = kwargs.pop("image", None)
@@ -27,6 +69,7 @@ class BaseWidget:
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
         self.canvas.tag_bind(self.image_id, "<Button-2>", self.show_context_menu)
         self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
+
         self.dragged_signal = Signal(BaseWidget, int, int)
         self.dragged_handle_signal = Signal(BaseWidget, int, float, float, float, float)
         self.resized_signal = Signal(BaseWidget, int, int)
@@ -43,6 +86,15 @@ class BaseWidget:
         if self.resizable:
             self.active_resize_handle = None
             self.resize_handles = self.create_resize_handles()
+
+    def __del__(self):
+        self.index_mgr.free_index(type(self), self.__index)
+
+    def get_style(self):
+        return tuple(style for style in self.style)
+
+    def get_style_string(self):
+        return ", ".join(self.style)
 
     def create_resize_handles(self):
         size = 8
@@ -148,6 +200,13 @@ class BaseWidget:
 
     def on_drop(self, caller, event):
         self._drag_data = None
+        # success, parent = self.bind_to_parent_signal.emit(self)
+        # if success:
+        #     self.parent = parent
+        # else:
+        #     self.unbind_from_parent_signal.emit(self)
+        #     self.parent = None
+
 
     def move(self, dx, dy):
         self.dragged_signal.emit(self, dx, dy)

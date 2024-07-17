@@ -65,7 +65,7 @@ class SidebarLeft(Sidebar):
 class SidebarBottom(Sidebar):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        self.entry_input_signal = Signal(int, int, int, int, int, int)
+        self.entry_input_signal = Signal(int, int, int, int, int, int, str, list)
         self.create_widgets()
 
     def __validate_digits(self, string_var):
@@ -94,12 +94,14 @@ class SidebarBottom(Sidebar):
 
         self.x_frame, self.x_entry, self.x_string_var = create_labeled_entry(self.entries_frame, "X:\t")
         self.y_frame, self.y_entry, self.y_string_var = create_labeled_entry(self.entries_frame, "Y:\t")
-        self.width_frame, self.width_entry, self.width_string_var = create_labeled_entry(self.entries_frame, "Width:")
-        self.height_frame, self.height_entry, self.height_string_var = create_labeled_entry(self.entries_frame, "Height:")
+        self.width_frame, self.width_entry, self.width_string_var = create_labeled_entry(self.entries_frame, "Width:\t")
+        self.height_frame, self.height_entry, self.height_string_var = create_labeled_entry(self.entries_frame, "Height:\t")
         self.type_frame, self.type_entry, self.type_string_var = create_labeled_entry(self.entries_frame, "Type:")
         self.parent_frame, self.parent_entry, self.parent_string_var = create_labeled_entry(self.entries_frame, "Parent:")
-        self.x_parent, self.x_parent_entry, self.x_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-X:\t")
-        self.y_parent, self.y_parent_entry, self.y_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-Y:\t")
+        self.x_parent_frame, self.x_parent_entry, self.x_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-X:\t")
+        self.y_paren_frame, self.y_parent_entry, self.y_parent_string_var = create_labeled_entry(self.entries_frame2, "Parent-Y:\t")
+        self.wdg_name_frame, self.wdg_name_entry, self.wdg_name_string_var = create_labeled_entry(self.entries_frame2, "Name:\t")
+        self.style_frame, self.style_entry, self.style_string_var = create_labeled_entry(self.entries_frame2, "Style:\t")
         self.type_entry.configure(state="readonly")
         self.parent_entry.configure(state="readonly")
 
@@ -110,7 +112,7 @@ class SidebarBottom(Sidebar):
         self.width_string_var.trace_add("write", lambda *args: self.__validate_digits(self.width_string_var))
         self.height_string_var.trace_add("write", lambda *args: self.__validate_digits(self.height_string_var))
 
-    def set_entry_values(self, x, y, x_parent, y_parent, width, height, type, parent):
+    def set_entry_values(self, x, y, x_parent, y_parent, width, height, type, parent, wdg_name, style):
         self.type_entry.configure(state="normal")
         self.parent_entry.configure(state="normal")
 
@@ -122,6 +124,8 @@ class SidebarBottom(Sidebar):
         self.insert_entry_text(self.height_entry, height)
         self.insert_entry_text(self.type_entry, type)
         self.insert_entry_text(self.parent_entry, parent)
+        self.insert_entry_text(self.wdg_name_entry, wdg_name)
+        self.insert_entry_text(self.style_entry, style)
 
         self.type_entry.configure(state="readonly")
         self.parent_entry.configure(state="readonly")
@@ -133,11 +137,13 @@ class SidebarBottom(Sidebar):
         y_parent = self.y_parent_entry.get()
         width = self.width_entry.get()
         height = self.height_entry.get()
+        wdg_name = self.wdg_name_entry.get()
+        style = self.style_entry.get()
         # type = self.type_entry.get()
         # parent = self.parent_entry.get()
         try:
-            int(x), int(y), int(x_parent), int(y_parent), int(width), int(height)
+            int(x), int(y), int(x_parent), int(y_parent), int(width), int(height), str(wdg_name), [opt.strip() for opt in list(style.split(","))]
         except:
             pass
         else:
-            self.entry_input_signal.emit(int(x), int(y), int(x_parent), int(y_parent), int(width), int(height))
+            self.entry_input_signal.emit(int(x), int(y), int(x_parent), int(y_parent), int(width), int(height), str(wdg_name), [opt.strip() for opt in list(style.split(","))])

@@ -17,7 +17,7 @@ def generate_python_file(file_name, data, *imports):
                         lines.append(dict_to_str(item, indent + 1))
                         lines.append(f'{indent_str}}},')
                     elif isinstance(item, str):
-                        lines.append(f'{indent_str}"{item}",')
+                        lines.append(f'{indent_str + "    "}"{item}",')
                     else:
                         lines.append(f'{indent_str}{item},')
                 lines.append(f'{indent_str}),')
