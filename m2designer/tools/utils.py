@@ -1,3 +1,5 @@
+import json
+
 def flattenDict(_dict, res=None):
     if res is None:
         res = []
@@ -7,3 +9,4 @@ def flattenDict(_dict, res=None):
         if isinstance(value, dict):
             flattenDict(value, res)
     return res
+

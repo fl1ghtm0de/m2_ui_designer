@@ -1,4 +1,5 @@
 from tools.utils import flattenDict
+from tools.uiscript_im_export import generate_python_file
 from components.board import Board
 from components.button import Button
 from components.base_widget import BaseWidget
@@ -338,3 +339,200 @@ class WidgetRelationshipManager(object):
 
                 self.til_img_map[obj.image_id] = stretch_image(obj.image_path, width, height, corner_radius)
                 self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
+
+    def parse_to_uiscript_format(self):
+        if self.curr_widget is not None:
+            children = flattenDict(self.get_child_widgets(self.curr_widget))
+            data = {
+                "name" : "MainWindow",
+                "x" : 0,
+                "y" : 0,
+                "style" : (
+                    "movable",
+                    "float",
+                ),
+                "width" : self.curr_widget.width,
+                "height" : self.curr_widget.height,
+                "children" : [
+                    {
+                        "name" : "board",
+                        "type" : "board",
+                        "style" : ("attach",),
+                        "x" : 0,
+                        "y" : 0,
+                        "width" : self.curr_widget.width,
+                        "height" : self.curr_widget.height,
+                        "children" : [
+                            {
+                                "name" : "TitleBar",
+                                "type" : "titlebar",
+                                "style" : ("attach",),
+                                "x" : 6,
+                                "y" : 6,
+                                "width" : self.curr_widget.width - 15,
+                                "color" : "yellow",
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            for child in children:
+                data["children"].append({
+                    # IMPLEMENT
+                    })
+
+
+            # parent_x, parent_y = widget.parent.x, widget.parent.y
+
+            generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")
+
+
+
+        # window_data = {
+        #     "name": "Acce_CombineWindow",
+        #     "x": 0,
+        #     "y": 0,
+        #     "style": (
+        #         "movable",
+        #         "float",
+        #     ),
+        #     "width": 215,
+        #     "height": 270,
+        #     "children": (
+        #         {
+        #             "name": "board",
+        #             "type": "board",
+        #             "style": (
+        #                 "attach",
+        #             ),
+        #             "x": 0,
+        #             "y": 0,
+        #             "width": 215,
+        #             "height": 270,
+        #             "children": (
+        #                 {
+        #                     "name": "TitleBar",
+        #                     "type": "titlebar",
+        #                     "style": (
+        #                         "attach",
+        #                     ),
+        #                     "x": 6,
+        #                     "y": 6,
+        #                     "width": 200,
+        #                     "color": "yellow",
+        #                     "children": (
+        #                         {
+        #                             "name": "TitleName",
+        #                             "type": "text",
+        #                             "x": 95,
+        #                             "y": 3,
+        #                             "text": "uiScriptLocale.ACCE_COMBINE",
+        #                             "text_horizontal_align": "center",
+        #                         },
+        #                     ),
+        #                 },
+        #                 {
+        #                     "name": "Acce_Combine",
+        #                     "type": "image",
+        #                     "x": 9,
+        #                     "y": 35,
+        #                     "image": "acce/acce_combine.tga",
+        #                     "children": (
+        #                         {
+        #                             "name": "AcceSlot",
+        #                             "type": "slot",
+        #                             "x": 3,
+        #                             "y": 3,
+        #                             "width": 200,
+        #                             "height": 150,
+        #                             "slot": (
+        #                                 {
+        #                                     "index": 0,
+        #                                     "x": 78,
+        #                                     "y": 7,
+        #                                     "width": 32,
+        #                                     "height": 32,
+        #                                 },
+        #                                 {
+        #                                     "index": 1,
+        #                                     "x": 78,
+        #                                     "y": 60,
+        #                                     "width": 32,
+        #                                     "height": 32,
+        #                                 },
+        #                                 {
+        #                                     "index": 2,
+        #                                     "x": 78,
+        #                                     "y": 115,
+        #                                     "width": 32,
+        #                                     "height": 32,
+        #                                 },
+        #                             ),
+        #                         },
+        #                         {
+        #                             "name": "Main",
+        #                             "type": "text",
+        #                             "text": "uiScriptLocale.ACCE_MAIN",
+        #                             "text_horizontal_align": "center",
+        #                             "x": 97,
+        #                             "y": 43,
+        #                         },
+        #                         {
+        #                             "name": "serve",
+        #                             "type": "text",
+        #                             "text": "uiScriptLocale.ACCE_SERVE",
+        #                             "text_horizontal_align": "center",
+        #                             "x": 97,
+        #                             "y": 98,
+        #                         },
+        #                         {
+        #                             "name": "Result",
+        #                             "type": "text",
+        #                             "text": "uiScriptLocale.ACCE_RESULT",
+        #                             "text_horizontal_align": "center",
+        #                             "x": 97,
+        #                             "y": 155,
+        #                         },
+        #                     ),
+        #                 },
+        #                 {
+        #                     "name": "NeedMoney",
+        #                     "type": "text",
+        #                     "text": "",
+        #                     "text_horizontal_align": "center",
+        #                     "x": 105,
+        #                     "y": 215,
+        #                 },
+        #                 {
+        #                     "name": "AcceptButton",
+        #                     "type": "button",
+        #                     "x": 40,
+        #                     "y": 235,
+        #                     "text": "uiScriptLocale.OK",
+        #                     "default_image": "d:/ymir work/ui/public/middle_button_01.sub",
+        #                     "over_image": "d:/ymir work/ui/public/middle_button_02.sub",
+        #                     "down_image": "d:/ymir work/ui/public/middle_button_03.sub",
+        #                 },
+        #                 {
+        #                     "name": "CancelButton",
+        #                     "type": "button",
+        #                     "x": 114,
+        #                     "y": 235,
+        #                     "text": "uiScriptLocale.CANCEL",
+        #                     "default_image": "d:/ymir work/ui/public/middle_button_01.sub",
+        #                     "over_image": "d:/ymir work/ui/public/middle_button_02.sub",
+        #                     "down_image": "d:/ymir work/ui/public/middle_button_03.sub",
+        #                 },
+        #             ),
+        #         },
+        #     ),
+        # }
+
+
+        # name = kwargs.pop("name", "")
+        # x = kwargs.pop("x", 0)
+        # y = kwargs.pop("y", 0)
+        # style = kwargs.pop("style", ("movable, float"))
+        # width = kwargs.pop("width", 0)
+        # height = kwargs.pop("height", 0)

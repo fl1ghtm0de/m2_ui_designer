@@ -19,11 +19,15 @@ class Sidebar(ctk.CTkFrame):
 class SidebarLeft(Sidebar):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+        self.export_uiscript_signal = Signal()
         self.create_widgets()
 
     def create_widgets(self):
         self.logo_label = ctk.CTkLabel(self, text="m2 ui designer\nby flightm0de", font=("Helvetica", 16, "bold"))
-        self.logo_label.pack(pady=20, padx=10)
+        self.logo_label.pack(pady=10, padx=10)
+
+        self.export_btn = ctk.CTkButton(self, text="Export uiscript", font=("Helvetica", 16, "bold"), command=self.export_uiscript_signal.emit)
+        self.export_btn.pack(pady=(10, 40), padx=10)
 
         self.frame_btn = ctk.CTkButton(self, text="Board", command=lambda: self.create_widget_signal.emit({"_type": "board", "width" : 100, "height" : 100}))
         self.frame_btn.pack(pady=10, padx=10)
