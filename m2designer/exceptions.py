@@ -1,0 +1,2 @@
+class ImageSelectionError(Exception):
+    pass

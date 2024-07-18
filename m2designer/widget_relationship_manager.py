@@ -5,9 +5,13 @@ from components.button import Button
 from components.base_widget import BaseWidget
 from components.thinboard import Thinboard
 from components.slot import Slot
+from components.text import Text
+from components.image import Image
 from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image
 from config_loader import Config
 from ctk_signal import Signal
+
+from exceptions import ImageSelectionError
 class WidgetRelationshipManager(object):
     """singleton class to keep track of all placed widgets and their relationships
     """
@@ -22,13 +26,15 @@ class WidgetRelationshipManager(object):
             self.initialized = True
             self.widgets = {}
             self.til_img_map = {}
-            self.clicked_signal = Signal(int, int, int, int, int, int, str, str, str, str)
+            self.clicked_signal = Signal(int, int, int, int, int, int, str, str, str, str, str)
             self.curr_widget = None
             self.obj_type_map = {
                 "button" : {"obj" : Button, "resize_type" : "stretch"},
                 "board" : {"obj" : Board, "resize_type" : "tile"},
                 "thinboard" : {"obj" : Thinboard, "resize_type" : "stretch"},
-                "slot" : {"obj" : Slot, "resize_type" : "stretch"}
+                "slot" : {"obj" : Slot, "resize_type" : "stretch"},
+                "text" : {"obj" : Text, "resize_type" : "stretch"},
+                "image" : {"obj" : Image, "resize_type" : None}
             }
 
     def __check_overlap(self, child_wdg: BaseWidget, _dict=None) -> BaseWidget | None:
@@ -105,12 +111,12 @@ class WidgetRelationshipManager(object):
             parent_x = widget.x - widget.parent.x
             parent_y = widget.y - widget.parent.y
 
-        self.clicked_signal.emit(int(widget.x), int(widget.y), int(parent_x), int(parent_y), int(widget.width), int(widget.height), str(widget), str(widget.parent), str(widget.name), str(widget.get_style_string()))
+        self.clicked_signal.emit(int(widget.x), int(widget.y), int(parent_x), int(parent_y), int(widget.width), int(widget.height), str(widget), str(widget.parent), str(widget.name), str(widget.get_style_string()), str(widget.text))
 
     def move_handles(self, widget, handle_id, x, y, x2, y2):
         self.canvas.coords(handle_id, x, y, x2, y2)
 
-    def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, widget=None):
+    def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, text, widget=None):
         if hasattr(self, "canvas"):
             if widget is None:
                 widget = self.curr_widget
@@ -149,8 +155,12 @@ class WidgetRelationshipManager(object):
             if style != widget.style:
                 widget.style = style
 
+            if text != widget.text and widget.text is not None:
+                widget.set_text(text)
+
             if (curr_width != width or curr_height != height) and not widget.resize_locked:
-                self.recalculate_image(widget, width, height)
+                if widget.resize_type is not None:
+                    self.recalculate_image(widget, width, height)
                 widget.width = width
                 widget.height = height
                 widget.update_resize_handles()
@@ -160,16 +170,18 @@ class WidgetRelationshipManager(object):
     def move_widget(self, widget, dx, dy):
         if hasattr(self, "canvas"):
             self.canvas.move(widget.image_id, dx, dy)
+            if widget.text is not None:
+                self.canvas.move(widget.text_id, dx, dy)
             if widget.resizable:
                 for handle_id in widget.resize_handles:
                     self.canvas.move(handle_id, dx, dy)
 
             children = flattenDict(self.get_child_widgets(widget))
-            # print(self.widgets)
-            # print(self.get_child_widgets(widget))
             if children:
                 for child in children:
                     self.canvas.move(child.image_id, dx, dy)
+                    if child.text is not None:
+                        self.canvas.move(child.text_id, dx, dy)
                     if child.resizable:
                         for handle_id in child.resize_handles:
                             self.canvas.move(handle_id, dx, dy)
@@ -234,12 +246,16 @@ class WidgetRelationshipManager(object):
 
     def inc_z_index(self, item):
         self.canvas.tag_raise(item.image_id)
+        if item.text is not None:
+            self.canvas.tag_raise(item.text_id)
         # if item.resizable:
         #     for handle in item.resize_handles:
         #         self.canvas.tag_raise(handle)
 
     def dec_z_index(self, item):
         self.canvas.tag_lower(item.image_id)
+        if item.text is not None:
+            self.canvas.tag_lower(item.text_id)
         # if item.resizable:
         #     for handle in item.resize_handles:
         #         self.canvas.tag_lower(handle)
@@ -307,6 +323,8 @@ class WidgetRelationshipManager(object):
             if child.resizable:
                 for handle_id in child.resize_handles:
                     self.canvas.delete(handle_id)
+            if child.text is not None:
+                self.canvas.delete(child.text_id)
         self.__delete_widget_internally(obj)
 
     def __delete_widget_internally(self, obj, _dict=None):
@@ -332,7 +350,6 @@ class WidgetRelationshipManager(object):
                 til_img = create_tiled_image(obj.image_path, width, height)
                 til_img = add_borders(til_img, obj.image_borders)
                 self.til_img_map[obj.image_id] = make_final_image(til_img)
-                self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
 
             elif obj.resize_type == "stretch":
                 corner_radius = 4
@@ -342,7 +359,8 @@ class WidgetRelationshipManager(object):
                     height = corner_radius * 2 + 1
 
                 self.til_img_map[obj.image_id] = stretch_image(obj.image_path, width, height, corner_radius)
-                self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
+
+            self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
 
     def parse_to_uiscript_format(self):
         if self.curr_widget is not None:

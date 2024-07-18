@@ -28,7 +28,7 @@ def generate_python_file(file_name, data, *imports):
         return "\n".join(lines)
 
 
-    content = "#############################################################\n### uiscript generated using m2 ui designer by flightm0de @ metin2downloads.to ###\n#############################################################\n\n\n"
+    content = "##################################################################################\n### uiscript generated using m2 ui designer by flightm0de @ metin2downloads.to ###\n##################################################################################\n\n\n"
     for import_file in imports:
         content += f"import {import_file}\n"
     content += "\nwindow = {\n"

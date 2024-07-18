@@ -44,7 +44,7 @@ class BaseWidget:
         self.index_mgr = WindowIndexManager()
         self.x = kwargs.pop("x", 0)
         self.y = kwargs.pop("y", 0)
-        self.text = kwargs.pop("text", "default")
+        self.text = kwargs.pop("text", None)
         self.__index = self.index_mgr.get_next_index(type(self))
         self.name = kwargs.pop("name", f"{str(self)}_{self.__index}")
         self.style = kwargs.pop("style", [])
@@ -56,7 +56,7 @@ class BaseWidget:
         self.canvas = canvas
         self.parent = kwargs.pop("parent", None)
         self.resizable = kwargs.pop("resizable", False)
-        self.resize_type = kwargs.pop("resize_type", "stretch")
+        self.resize_type = kwargs.pop("resize_type", None)
         self.resize_locked = False
         # self.item_id = self.canvas.create_text(self.x, self.y, text=self.text, font=("Helvetica", 16), fill="black")
         if self.parent is not None:
@@ -64,11 +64,19 @@ class BaseWidget:
             self.y += self.parent.y
 
         self.image_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor='nw')
+        self.text_id = self.canvas.create_text(self.x+3, self.y+self.height//2, text=self.text, anchor='w', font=('Helvetica 9'), fill="white",)
         self.canvas.tag_bind(self.image_id, "<Button-1>", self.on_click)
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
+
+        self.canvas.tag_bind(self.text_id, "<Button-1>", self.on_click)
+        self.canvas.tag_bind(self.text_id, "<B1-Motion>", self.on_drag)
+
         self.canvas.tag_bind(self.image_id, "<ButtonRelease-1>", lambda event: self.on_drop("widget", event))
         self.canvas.tag_bind(self.image_id, "<Button-2>", self.show_context_menu)
         self.canvas.tag_bind(self.image_id, "<Button-3>", self.show_context_menu)
+
+        self.canvas.tag_bind(self.text_id, "<Button-2>", self.show_context_menu)
+        self.canvas.tag_bind(self.text_id, "<Button-3>", self.show_context_menu)
 
         self.dragged_signal = Signal(BaseWidget, int, int)
         self.dragged_handle_signal = Signal(BaseWidget, int, float, float, float, float)
@@ -80,8 +88,8 @@ class BaseWidget:
         self.arrow_drag_signal = Signal(int, int)
         self.inc_zindex_signal = Signal(BaseWidget)
         self.dec_zindex_signal = Signal(BaseWidget)
-
         self.arrow_drag_signal.connect(self.on_arrow_drag)
+
         self.create_context_menu()
         if self.resizable:
             self.active_resize_handle = None
@@ -89,6 +97,11 @@ class BaseWidget:
 
     def __del__(self):
         self.index_mgr.free_index(type(self), self.__index)
+
+    def set_text(self, text):
+        if self.text is not None and text != "None":
+            self.text = text
+            self.canvas.itemconfigure(self.text_id, text=text)
 
     def get_style(self):
         return tuple(style for style in self.style)
@@ -106,10 +119,10 @@ class BaseWidget:
             (self.x + self.width - size / 2, self.y + self.height - size / 2)
         ]
 
-        for pos in positions:
+        for i, pos in enumerate(positions):
             handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="skyblue")
             self.canvas.tag_bind(handle, "<Button-1>", self.on_resize_click)
-            self.canvas.tag_bind(handle, "<B1-Motion>", self.on_resize_drag)
+            self.canvas.tag_bind(handle, "<B1-Motion>", lambda e, index=i: self.on_resize_drag(e, index))
             resize_handles.append(handle)
 
         return resize_handles
@@ -141,13 +154,13 @@ class BaseWidget:
 
     def on_resize_click(self, event):
         if not self.resize_locked:
-            self.active_resize_handle = self.canvas.find_closest(event.x, event.y)[0]
+            # self.active_resize_handle = self.resize_handles[index]
             self.offset_x = event.x
             self.offset_y = event.y
 
-    def on_resize_drag(self, event):
-        if self.active_resize_handle is not None and not self.resize_locked:
-            index = self.resize_handles.index(self.active_resize_handle)
+    def on_resize_drag(self, event, index):
+        if not self.resize_locked:
+            # index = self.resize_handles.index(self.active_resize_handle)
             dx = event.x - self.offset_x
             dy = event.y - self.offset_y
 

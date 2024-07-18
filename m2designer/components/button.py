@@ -22,7 +22,7 @@ class Button(BaseWidget):
         cfg_loader = Config()
         img_path = cfg_loader.construct_path(cfg_loader.BUTTON_PATH, f"{self.button_type}_button.png")
         self.stretch_img = stretch_image(img_path, width, height, 3)
-        super().__init__(canvas=canvas, image=self.stretch_img, image_path=img_path, width=width, height=height, *args, **kwargs)
+        super().__init__(canvas=canvas, image=self.stretch_img, image_path=img_path, width=width, height=height, text="", *args, **kwargs)
 
     def __str__(self):
         return f"button_{self.button_type}"
