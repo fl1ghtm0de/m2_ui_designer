@@ -1,0 +1,16 @@
+{
+    "BUTTON_PATH": "images/button/",
+    "board_base" : "images/board/board_base.png",
+    "top" : "images/board_2/board_line_top.png",
+    "left" : "images/board_2/board_line_left.png",
+    "bottom" : "images/board_2/board_line_bottom.png",
+    "right" : "images/board_2/board_line_right.png",
+    "top_left_corner" : "images/board_2/board_corner_lefttop.png",
+    "bottom_left_corner" : "images/board_2/board_corner_leftbottom.png",
+    "bottom_right_corner" : "images/board_2/board_corner_rightbottom.png",
+    "top_right_corner" : "images/board_2/board_corner_righttop.png",
+    "close_button" : "images/button/close_button.png",
+    "minimize_button" : "images/button/minimize_button.png",
+    "thinboard" : "images/board/thinboard.png",
+    "slot" : "images/components/slot.png"
+}

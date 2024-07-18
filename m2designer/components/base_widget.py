@@ -104,7 +104,7 @@ class BaseWidget:
             self.canvas.itemconfigure(self.text_id, text=text)
 
     def get_style(self):
-        return tuple(style for style in self.style)
+        return tuple(self.style)
 
     def get_style_string(self):
         return ", ".join(self.style)
