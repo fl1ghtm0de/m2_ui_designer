@@ -39,6 +39,7 @@ class WindowIndexManager:
     def free_index(self, _type, index):
         if self.used_index_list.get(_type, None) is not None:
             self.used_index_list[_type].remove(index)
+
 class BaseWidget:
     def __init__(self, canvas, *args, **kwargs):
         self.index_mgr = WindowIndexManager()

@@ -158,14 +158,12 @@ class WidgetRelationshipManager(object):
             if text != widget.text and widget.text is not None:
                 widget.set_text(text)
 
-            if (curr_width != width or curr_height != height) and not widget.resize_locked:
+            if (curr_width != width or curr_height != height) and widget.resizable and not widget.resize_locked:
                 if widget.resize_type is not None:
                     self.recalculate_image(widget, width, height)
                 widget.width = width
                 widget.height = height
                 widget.update_resize_handles()
-
-
 
     def move_widget(self, widget, dx, dy):
         if hasattr(self, "canvas"):

@@ -8,7 +8,7 @@ class Slot(BaseWidget):
         height = kwargs.pop("height", 0)
         cfg_loader = Config()
         self.stretch_img = stretch_image(cfg_loader.slot, width, height, 3)
-        super().__init__(canvas=canvas, width=width, height=height, image=self.stretch_img, image_path=cfg_loader.slot, resizable=True, *args, **kwargs)
+        super().__init__(canvas=canvas, width=width, height=height, image=self.stretch_img, image_path=cfg_loader.slot, resizable=False, *args, **kwargs)
 
     def __str__(self):
         return f"Slot"
