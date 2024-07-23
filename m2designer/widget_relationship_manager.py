@@ -26,7 +26,7 @@ class WidgetRelationshipManager(object):
             self.initialized = True
             self.widgets = {}
             self.til_img_map = {}
-            self.clicked_signal = Signal(int, int, int, int, int, int, str, str, str, str, str)
+            self.clicked_signal = Signal(dict)
             self.curr_widget = None
             self.obj_type_map = {
                 "button" : {"obj" : Button, "resize_type" : "stretch"},
@@ -96,7 +96,8 @@ class WidgetRelationshipManager(object):
                 self.hide_handles(self.curr_widget)
             self.curr_widget = wdg
 
-    def __emit_clicked(self, widget):
+    def __emit_clicked(self, data):
+        widget = data.pop("object")
         self.hide_handles(self.curr_widget)
         self.set_curr_widget(widget)
         self.show_handles(self.curr_widget)
@@ -111,10 +112,55 @@ class WidgetRelationshipManager(object):
             parent_x = widget.x - widget.parent.x
             parent_y = widget.y - widget.parent.y
 
-        self.clicked_signal.emit(int(widget.x), int(widget.y), int(parent_x), int(parent_y), int(widget.width), int(widget.height), str(widget), str(widget.parent), str(widget.name), str(widget.get_style_string()), str(widget.text))
+        self.clicked_signal.emit(data)
 
     def move_handles(self, widget, handle_id, x, y, x2, y2):
         self.canvas.coords(handle_id, x, y, x2, y2)
+
+    def apply_entry_input(self, attr, value):
+        widget = self.curr_widget
+        if widget is not None:
+            if attr == "x":
+                curr_x, _ = self.canvas.coords(widget.image_id)
+                if not curr_x:
+                    return
+
+                dx = value - curr_x
+                self.move_widget(widget, dx, 0)
+
+            elif attr == "y":
+                _, curr_y = self.canvas.coords(widget.image_id)
+                if not curr_y:
+                    return
+
+                dy = value - curr_y
+                self.move_widget(widget, 0, dy)
+
+            elif attr == "width":
+                curr_width, _ = widget.get_size()
+                if curr_width != value and widget.resizable and not widget.resize_locked:
+                    if widget.resize_type is not None:
+                        self.recalculate_image(widget, value, widget.height)
+                    widget.width = value
+                    widget.update_resize_handles()
+
+            elif attr == "height":
+                _, curr_height = widget.get_size()
+                if curr_height != value and widget.resizable and not widget.resize_locked:
+                    if widget.resize_type is not None:
+                        self.recalculate_image(widget, widget.width, value)
+                    widget.height = value
+                    widget.update_resize_handles()
+
+            elif attr == "slot_count":
+                widget.set_slot_count(value)
+
+            elif attr == "text":
+                widget.set_text(value)
+
+            else:
+                setattr(widget, attr, value)
+
 
     def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, text, widget=None):
         if hasattr(self, "canvas"):

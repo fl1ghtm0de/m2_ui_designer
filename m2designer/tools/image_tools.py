@@ -6,6 +6,11 @@ def open_image(image_path):
     width, height = img.size
     return make_final_image(img), width, height
 
+def get_image_size(image_path):
+    img = Image.open(image_path)
+    width, height = img.size
+    return width, height
+
 def create_tiled_image(image_path, width, height):
     small_image = Image.open(image_path)
     small_width, small_height = small_image.size

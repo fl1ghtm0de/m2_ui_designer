@@ -26,3 +26,8 @@ class Button(BaseWidget):
 
     def __str__(self):
         return f"button_{self.button_type}"
+
+    def get_data(self):
+        data = super().get_data()
+        data["button_type"] = self.button_type
+        return data

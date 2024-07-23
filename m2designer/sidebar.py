@@ -1,13 +1,17 @@
 import customtkinter as ctk
 import tkinter as tk
+from tkinter import ttk
 from ctk_signal import Signal
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master=None, **kwargs):
         super().__init__(master, **kwargs)
         self.create_widget_signal = Signal(dict)
-
+        self.show_error_signal = Signal(str, str)
         self.configure(width=200, corner_radius=0)
+        self.set_styles()
+        ctk.set_appearance_mode("System")  # Set the appearance mode to follow the system setting
+        ctk.AppearanceModeTracker.add(self.change_appearance_mode)  # Track appearance mode changes
 
     def insert_entry_text(self, entry:ctk.CTkEntry, text):
         if not isinstance(text, str):
@@ -15,6 +19,131 @@ class Sidebar(ctk.CTkFrame):
 
         entry.delete(0, ctk.END)
         entry.insert(0, text)
+
+    def set_styles(self):
+        style = ttk.Style()
+        style.theme_use("clam")
+        current_mode = ctk.get_appearance_mode()
+
+        if current_mode == "Dark":
+            treeview_bg = "#333333"
+            treeview_fg = "white"
+            treeview_field_bg = "#333333"
+            heading_bg = "#3B8ED0"  # Light blue to match CustomTkinter button
+            heading_fg = "white"
+            active_bg = "#5DADE2"   # Slightly lighter blue
+            selected_bg = "#555555"
+        else:  # Light mode
+            treeview_bg = "#ffffff"
+            treeview_fg = "black"
+            treeview_field_bg = "#ffffff"
+            heading_bg = "#3B8ED0"  # Light blue to match CustomTkinter button
+            heading_fg = "white"
+            active_bg = "#5DADE2"   # Slightly lighter blue
+            selected_bg = "#cccccc"
+
+        style.configure("Treeview",
+                        background=treeview_bg,
+                        foreground=treeview_fg,
+                        fieldbackground=treeview_field_bg,
+                        rowheight=25,
+                        font=("Arial", 12))
+
+        style.configure("Treeview.Heading",
+                        background=heading_bg,
+                        foreground=heading_fg,
+                        relief="raised",
+                        padding=(10, 5),
+                        font=("Arial", 12, "bold"))
+
+        style.map("Treeview.Heading",
+                background=[('active', active_bg), ('pressed', heading_bg)],
+                relief=[('pressed', 'sunken')])
+
+        style.map("Treeview",
+                background=[('selected', selected_bg)],
+                foreground=[('selected', 'white')])
+
+    def change_appearance_mode(self, new_appearance_mode):
+        self.set_styles()
+        # Update treeview widgets in the application to apply new styles
+        for widget in self.winfo_children():
+            if isinstance(widget, ttk.Treeview):
+                widget.configure(style='Treeview')
+
+class SidebarRight(Sidebar):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+        self.export_uiscript_signal = Signal()
+        self.create_widgets()
+        self.entry_input_signal = Signal(object, object)
+        self.attr_type_map = {}
+
+    def create_widgets(self):
+        self.attribute_table = ttk.Treeview(self, columns=("Attribute", "Value"), show='headings')
+        self.attribute_table.heading("Attribute", text="Attribute")
+        self.attribute_table.heading("Value", text="Value")
+        self.attribute_table.bind('<Double-1>', self.on_double_click)
+
+        self.attribute_table.pack(expand=True, fill='both')
+
+    def add_row(self, attribute, value):
+        self.attribute_table.insert("", "end", values=(attribute, value))
+
+    def clear_table(self):
+        for item in self.attribute_table.get_children():
+            self.attribute_table.delete(item)
+
+    def set_entry_values(self, data):
+        self.clear_table()
+        for widget_attr, attr_value in data.items():
+            self.attr_type_map[widget_attr] = type(attr_value)
+            self.add_row(widget_attr, attr_value)
+
+    def on_double_click(self, event):
+        item_id = self.attribute_table.identify_row(event.y)
+        column = self.attribute_table.identify_column(event.x)
+
+        if column == '#2':  # Make sure the click is on the "Value" column
+            self.edit_value_cell(item_id)
+
+    def edit_value_cell(self, item_id):
+        x, y, width, height = self.attribute_table.bbox(item_id, 'Value')
+        value = self.attribute_table.item(item_id, 'values')[1]
+        self.entry_popup = ctk.CTkEntry(self, width=width)
+        self.entry_popup.insert(0, value)
+        self.entry_popup.focus()
+        self.entry_popup.place(
+            x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(),
+            y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty()
+        )
+        self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
+        self.entry_popup.bind('<FocusOut>', lambda event: self.destroy_entry_popup())
+
+    def update_value(self, item_id):
+        try:
+            new_value = self.entry_popup.get()
+            current_values = list(self.attribute_table.item(item_id, 'values'))
+            current_values[1] = new_value
+            try:
+                self.attr_type_map[current_values[0]](current_values[1]) # try to cast the current input to the initial datatype
+            except ValueError:
+                self.show_error_signal.emit("Invalid input", f"Exspected type: {self.attr_type_map[current_values[0]]}")
+                return
+            else:
+                self.entry_input_signal.emit(current_values[0], self.attr_type_map[current_values[0]](current_values[1])) # if cast succeeds, emit the new data
+
+            self.attribute_table.item(item_id, values=current_values)
+        except Exception as e:
+            print(f"Error updating value: {e}")
+        finally:
+            self.destroy_entry_popup()
+
+    def destroy_entry_popup(self):
+        if self.entry_popup:
+            self.entry_popup.destroy()
+            self.entry_popup = None
+
 
 class SidebarLeft(Sidebar):
     def __init__(self, master, **kwargs):
@@ -59,7 +188,7 @@ class SidebarLeft(Sidebar):
         self.xsmall_btn = ctk.CTkButton(self, text="Button XSmall", command=lambda: self.create_widget_signal.emit({"_type": "button", "button_type": "xsmall"}))
         self.xsmall_btn.pack(pady=10, padx=10)
 
-        self.slot_btn = ctk.CTkButton(self, text="Slot", command=lambda: self.create_widget_signal.emit({"_type": "slot", "width" : 32, "height" : 32}))
+        self.slot_btn = ctk.CTkButton(self, text="Slot", command=lambda: self.create_widget_signal.emit({"_type": "slot"}))
         self.slot_btn.pack(pady=10, padx=10)
 
         self.text_btn = ctk.CTkButton(self, text="Text", command=lambda: self.create_widget_signal.emit({"_type": "text", "width" : 50, "height" : 20}))

@@ -85,7 +85,7 @@ class BaseWidget:
         self.delete_signal = Signal(BaseWidget)
         self.unbind_from_parent_signal = Signal(BaseWidget)
         self.bind_to_parent_signal = Signal(BaseWidget)
-        self.clicked_signal = Signal(object)
+        self.clicked_signal = Signal(dict)
         self.arrow_drag_signal = Signal(int, int)
         self.inc_zindex_signal = Signal(BaseWidget)
         self.dec_zindex_signal = Signal(BaseWidget)
@@ -131,7 +131,7 @@ class BaseWidget:
     def on_click(self, event):
         self.offset_x = event.x - self.canvas.coords(self.image_id)[0]
         self.offset_y = event.y - self.canvas.coords(self.image_id)[1]
-        self.clicked_signal.emit(self)
+        self.clicked_signal.emit(self.get_data())
 
     def on_drag(self, event):
         new_x = event.x - self.offset_x
@@ -140,7 +140,7 @@ class BaseWidget:
         dy = new_y - self.y
         self.x, self.y = new_x, new_y
         self.dragged_signal.emit(self, int(dx), int(dy))
-        self.clicked_signal.emit(self)
+        self.clicked_signal.emit(self.get_data())
 
         if self.resizable:
             self.update_resize_handles()
@@ -149,7 +149,7 @@ class BaseWidget:
         self.x += dx
         self.y += dy
         self.dragged_signal.emit(self, dx, dy)
-        self.clicked_signal.emit(self)
+        self.clicked_signal.emit(self.get_data())
         if self.resizable:
             self.update_resize_handles()
 
@@ -195,7 +195,7 @@ class BaseWidget:
                 if self.resizable:
                     self.update_resize_handles()
 
-            self.clicked_signal.emit(self)
+            self.clicked_signal.emit(self.get_data())
 
             self.offset_x = event.x
             self.offset_y = event.y
@@ -268,11 +268,39 @@ class BaseWidget:
         success, parent = self.bind_to_parent_signal.emit(self)
         if success:
             self.parent = parent
-        self.clicked_signal.emit(self)
+        self.clicked_signal.emit(self.get_data())
 
     def show_context_menu(self, event):
-        self.clicked_signal.emit(self)
+        self.clicked_signal.emit(self.get_data())
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root)
         finally:
             self.context_menu.grab_release()
+
+    def get_data(self):
+        data = {
+            "object" : self,
+            "x" : self.x,
+            "y" : self.y,
+            "width" : self.width,
+            "height" : self.height,
+            "type" : str(self),
+            "name" : self.name,
+            "style" : self.get_style_string(),
+            "image_path" : self.image_path,
+        }
+
+        if self.text is not None:
+            data["text"] = self.text
+
+        # if self.parent is not None:
+        #     data["parent_type"] = str(self.parent)
+        #     data["parent_name"] = self.parent.name
+        #     data["parent_x"] = self.parent.x
+        #     data["parent_y"] = self.parent.y
+        #     data["parent_width"] = self.parent.width
+        #     data["parent_height"] = self.parent.height
+            # data["x_relative"] = self.x - self.parent.x
+            # data["y_relative"] = self.y - self.parent.y
+
+        return data

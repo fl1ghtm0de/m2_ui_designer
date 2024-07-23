@@ -11,3 +11,9 @@ class Text(BaseWidget):
 
     def __str__(self):
         return f"text"
+
+    def get_data(self):
+        data = super().get_data()
+        del data["image_path"]
+        data["text"] = self.text
+        return data
