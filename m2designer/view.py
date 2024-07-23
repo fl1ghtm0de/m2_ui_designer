@@ -1,8 +1,7 @@
 import customtkinter
 from widget_relationship_manager import WidgetRelationshipManager
 from tkinter import Canvas, messagebox
-from tools.utils import flattenDict
-from sidebar import SidebarLeft, SidebarBottom, SidebarRight
+from sidebar import SidebarLeft, SidebarRight
 from ctk_signal import Signal
 
 from config_loader import Config
@@ -41,7 +40,7 @@ class View:
         self.sidebar_right.show_error_signal.connect(lambda title, msg: messagebox.showerror(title, msg))
         self.sidebar_right.entry_input_signal.connect(self.wrm.apply_entry_input)
 
-        self.canvas = Canvas(self.app)
+        self.canvas = Canvas(self.app, highlightthickness=0)
         self.canvas.pack(fill="both", expand=True)
         self.canvas.focus_set()
         self.set_canvas_background()
@@ -52,7 +51,7 @@ class View:
         # self.sidebar_bottom.entry_input_signal.connect(self.wrm.move_widget_absolute)
         # self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_right.set_entry_values)
-
+        self.wrm.error_message_signal.connect(lambda title, msg: messagebox.showerror(title, msg))
         # w = self.wrm.create_widget(_type="board", canvas=self.canvas, x=100, y=100, width=600, height=600)
         # w1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=200, height=140, parent=w, text="w1")
         # b1 = self.wrm.create_widget(_type="button", button_type="large", canvas=self.canvas, x=10, y=10, parent=w)

@@ -139,3 +139,52 @@ def create_white_image(width, height):
 
 def make_final_image(image):
     return ImageTk.PhotoImage(image)
+
+def create_titlebar(left_image_path, middle_image_path, right_image_path, width):
+    # Open the left, middle, and right images
+    left_img = Image.open(left_image_path)
+    middle_img = Image.open(middle_image_path)
+    right_img = Image.open(right_image_path)
+
+    # Get the heights of the images
+    left_width, left_height = left_img.size
+    middle_width, middle_height = middle_img.size
+    right_width, right_height = right_img.size
+
+    # Ensure all parts have the same height by resizing if necessary
+    target_height = max(left_height, middle_height, right_height)
+
+    if left_height != target_height:
+        left_img = left_img.resize((left_width, target_height), Image.ANTIALIAS)
+    if middle_height != target_height:
+        middle_img = middle_img.resize((middle_width, target_height), Image.ANTIALIAS)
+    if right_height != target_height:
+        right_img = right_img.resize((right_width, target_height), Image.ANTIALIAS)
+
+    # Calculate the width of the middle section
+    middle_section_width = width - (left_width + right_width)
+
+    if middle_section_width < 0:
+        raise ValueError("The provided width is too small to fit the left and right parts")
+
+    # Create a new image with the required width and height
+    titlebar_img = Image.new('RGB', (width, target_height))
+
+    # Paste the left part
+    titlebar_img.paste(left_img, (0, 0))
+
+    # Paste the middle part repeatedly to fill the middle section
+    current_width = left_width
+    while current_width < left_width + middle_section_width:
+        titlebar_img.paste(middle_img, (current_width, 0))
+        current_width += middle_width
+
+    # Adjust the last middle part to fit exactly if necessary
+    if current_width != left_width + middle_section_width:
+        overlap_width = current_width - (left_width + middle_section_width)
+        titlebar_img.paste(middle_img.crop((0, 0, middle_width - overlap_width, target_height)), (current_width - middle_width, 0))
+
+    # Paste the right part
+    titlebar_img.paste(right_img, (width - right_width, 0))
+
+    return make_final_image(titlebar_img)

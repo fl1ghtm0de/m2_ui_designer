@@ -1,4 +1,4 @@
-import json
+from os import path
 
 def flattenDict(_dict, res=None):
     if res is None:
@@ -10,3 +10,5 @@ def flattenDict(_dict, res=None):
             flattenDict(value, res)
     return res
 
+def file_exists(file_dir):
+    return path.exists(file_dir)

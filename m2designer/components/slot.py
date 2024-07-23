@@ -17,13 +17,6 @@ class Slot(BaseWidget):
         self.slot_count = slot_count
         self.slot_img = make_final_image(create_tiled_image(self.image_path, self.width, self.height * self.slot_count))
         self.canvas.itemconfig(self.image_id, image=self.slot_img)
-        # self.canvas.config(self.image_id, height=self.height*self.slot_count)
-
-    # def create_context_menu(self):
-    #     super().create_context_menu()
-    #     # self.context_menu.insert_separator(6)
-    #     self.context_menu.insert_command(8, label="Set Slot count", command=self.set_slot_image)
-    #     self.context_menu.insert_separator(8)
 
     def get_data(self):
         data = super().get_data()
@@ -31,4 +24,15 @@ class Slot(BaseWidget):
         del data["width"]
         del data["height"]
         data["slot_count"] = self.slot_count
+        return data
+
+    def get_slot_coords(self):
+        data = {}
+        for i in range(self.slot_count):
+            data[f"slot_{i+1}"] = {
+                "x": self.x,
+                "y": self.y + self.height * i,
+                "width": self.width,
+                "height": self.height,
+            }
         return data

@@ -12,5 +12,8 @@
     "close_button" : "images/button/close_button.png",
     "minimize_button" : "images/button/minimize_button.png",
     "thinboard" : "images/board/thinboard.png",
-    "slot" : "images/components/slot.png"
+    "slot" : "images/components/slot.png",
+    "titlebar_left" : "images/titlebar/titlebar_left.tga",
+    "titlebar_center" : "images/titlebar/titlebar_center.tga",
+    "titlebar_right" : "images/titlebar/titlebar_right.tga"
 }

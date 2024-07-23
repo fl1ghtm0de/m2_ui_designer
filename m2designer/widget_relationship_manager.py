@@ -1,4 +1,4 @@
-from tools.utils import flattenDict
+from tools.utils import flattenDict, file_exists
 from tools.uiscript_im_export import generate_python_file
 from components.board import Board
 from components.button import Button
@@ -7,6 +7,7 @@ from components.thinboard import Thinboard
 from components.slot import Slot
 from components.text import Text
 from components.image import Image
+from components.titlebar import Titlebar
 from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image
 from config_loader import Config
 from ctk_signal import Signal
@@ -27,6 +28,7 @@ class WidgetRelationshipManager(object):
             self.widgets = {}
             self.til_img_map = {}
             self.clicked_signal = Signal(dict)
+            self.error_message_signal = Signal(str, str)
             self.curr_widget = None
             self.obj_type_map = {
                 "button" : {"obj" : Button, "resize_type" : "stretch"},
@@ -34,7 +36,8 @@ class WidgetRelationshipManager(object):
                 "thinboard" : {"obj" : Thinboard, "resize_type" : "stretch"},
                 "slot" : {"obj" : Slot, "resize_type" : "stretch"},
                 "text" : {"obj" : Text, "resize_type" : "stretch"},
-                "image" : {"obj" : Image, "resize_type" : None}
+                "image" : {"obj" : Image, "resize_type" : None},
+                "titlebar" : {"obj" : Titlebar, "resize_type" : None},
             }
 
     def __check_overlap(self, child_wdg: BaseWidget, _dict=None) -> BaseWidget | None:
@@ -119,6 +122,7 @@ class WidgetRelationshipManager(object):
 
     def apply_entry_input(self, attr, value):
         widget = self.curr_widget
+        success = False
         if widget is not None:
             if attr == "x":
                 curr_x, _ = self.canvas.coords(widget.image_id)
@@ -127,6 +131,7 @@ class WidgetRelationshipManager(object):
 
                 dx = value - curr_x
                 self.move_widget(widget, dx, 0)
+                success = True
 
             elif attr == "y":
                 _, curr_y = self.canvas.coords(widget.image_id)
@@ -135,6 +140,7 @@ class WidgetRelationshipManager(object):
 
                 dy = value - curr_y
                 self.move_widget(widget, 0, dy)
+                success = True
 
             elif attr == "width":
                 curr_width, _ = widget.get_size()
@@ -143,6 +149,7 @@ class WidgetRelationshipManager(object):
                         self.recalculate_image(widget, value, widget.height)
                     widget.width = value
                     widget.update_resize_handles()
+                    success = True
 
             elif attr == "height":
                 _, curr_height = widget.get_size()
@@ -151,15 +158,29 @@ class WidgetRelationshipManager(object):
                         self.recalculate_image(widget, widget.width, value)
                     widget.height = value
                     widget.update_resize_handles()
+                    success = True
 
             elif attr == "slot_count":
                 widget.set_slot_count(value)
+                success = True
 
             elif attr == "text":
                 widget.set_text(value)
+                success = True
+
+            elif attr == "image_path":
+                if file_exists(value):
+                    widget.set_image(value)
+                    success = True
+                else:
+                    self.error_message_signal.emit("Error", f"File at {value} not found")
 
             else:
                 setattr(widget, attr, value)
+                success = True
+
+        return success
+
 
 
     def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, text, widget=None):

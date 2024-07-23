@@ -28,8 +28,12 @@ class Image(BaseWidget):
         else:
             return None, -1, -1, file_path
 
-    def set_image(self):
-        img, img_width, img_height, file_path = self.pick_image()
+    def set_image(self, file_path=None):
+        if file_path is None:
+            img, img_width, img_height, file_path = self.pick_image()
+        else:
+            img, img_width, img_height = open_image(file_path)
+
         if img is not None:
             self.image = img
             self.image_path = file_path
