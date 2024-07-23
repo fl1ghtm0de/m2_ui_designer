@@ -26,20 +26,20 @@ class Sidebar(ctk.CTkFrame):
         current_mode = ctk.get_appearance_mode()
 
         if current_mode == "Dark":
-            treeview_bg = "#333333"
+            treeview_bg = "#2B2B2B"
             treeview_fg = "white"
-            treeview_field_bg = "#333333"
-            heading_bg = "#3B8ED0"  # Light blue to match CustomTkinter button
+            treeview_field_bg = "#2B2B2B"
+            heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
             heading_fg = "white"
-            active_bg = "#5DADE2"   # Slightly lighter blue
+            active_bg = "#144870"   # Slightly lighter blue
             selected_bg = "#555555"
         else:  # Light mode
             treeview_bg = "#ffffff"
             treeview_fg = "black"
             treeview_field_bg = "#ffffff"
-            heading_bg = "#3B8ED0"  # Light blue to match CustomTkinter button
+            heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
             heading_fg = "white"
-            active_bg = "#5DADE2"   # Slightly lighter blue
+            active_bg = "#144870"   # Slightly lighter blue
             selected_bg = "#cccccc"
 
         style.configure("Treeview",

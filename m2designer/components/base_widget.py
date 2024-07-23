@@ -121,7 +121,7 @@ class BaseWidget:
         ]
 
         for i, pos in enumerate(positions):
-            handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="skyblue")
+            handle = self.canvas.create_rectangle(pos[0], pos[1], pos[0] + size, pos[1] + size, fill="white")
             self.canvas.tag_bind(handle, "<Button-1>", self.on_resize_click)
             self.canvas.tag_bind(handle, "<B1-Motion>", lambda e, index=i: self.on_resize_drag(e, index))
             resize_handles.append(handle)
