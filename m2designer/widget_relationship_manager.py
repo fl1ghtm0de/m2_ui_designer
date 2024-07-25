@@ -8,7 +8,7 @@ from components.slot import Slot
 from components.text import Text
 from components.image import Image
 from components.titlebar import Titlebar
-from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image
+from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image, create_titlebar
 from config_loader import Config
 from ctk_signal import Signal
 
@@ -37,7 +37,7 @@ class WidgetRelationshipManager(object):
                 "slot" : {"obj" : Slot, "resize_type" : "stretch"},
                 "text" : {"obj" : Text, "resize_type" : "stretch"},
                 "image" : {"obj" : Image, "resize_type" : None},
-                "titlebar" : {"obj" : Titlebar, "resize_type" : None},
+                "titlebar" : {"obj" : Titlebar, "resize_type" : "tile"},
             }
 
     def __check_overlap(self, child_wdg: BaseWidget, _dict=None) -> BaseWidget | None:
@@ -412,9 +412,13 @@ class WidgetRelationshipManager(object):
     def recalculate_image(self, obj, width, height):
         if isinstance(obj, BaseWidget):
             if obj.resize_type == "tile":
-                til_img = create_tiled_image(obj.image_path, width, height)
-                til_img = add_borders(til_img, obj.image_borders)
-                self.til_img_map[obj.image_id] = make_final_image(til_img)
+                if isinstance(obj, Titlebar):
+                    bar_img = create_titlebar(obj.tb_left, obj.tb_center, obj.tb_right, width)
+                    self.til_img_map[obj.image_id] = bar_img
+                else:
+                    til_img = create_tiled_image(obj.image_path, width, height)
+                    til_img = add_borders(til_img, obj.image_borders)
+                    self.til_img_map[obj.image_id] = make_final_image(til_img)
 
             elif obj.resize_type == "stretch":
                 corner_radius = 4

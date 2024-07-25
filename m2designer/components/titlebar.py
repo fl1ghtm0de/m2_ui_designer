@@ -7,8 +7,11 @@ class Titlebar(BaseWidget):
         width = kwargs.pop("width", 0)
         height = kwargs.pop("height", 0)
         cfg_loader = Config()
+        self.tb_left = cfg_loader.titlebar_left
+        self.tb_center = cfg_loader.titlebar_center
+        self.tb_right = cfg_loader.titlebar_right
         self.bar_img = create_titlebar(cfg_loader.titlebar_left, cfg_loader.titlebar_center, cfg_loader.titlebar_right, width)
-        super().__init__(canvas=canvas, width=width, height=height, image=self.bar_img, text="", resizable=False, *args, **kwargs)
+        super().__init__(canvas=canvas, width=width, height=height, image=self.bar_img, text="", resizable=True, lock_vertical_resize=True, *args, **kwargs)
 
     def __str__(self):
         return f"titlebar"
@@ -18,5 +21,3 @@ class Titlebar(BaseWidget):
         del data["image_path"]
         data["text"] = self.text
         return data
-
-    def create_context_menu(self): ...

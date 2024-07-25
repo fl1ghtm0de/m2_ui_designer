@@ -59,6 +59,7 @@ class BaseWidget:
         self.resizable = kwargs.pop("resizable", False)
         self.resize_type = kwargs.pop("resize_type", None)
         self.resize_locked = False
+        self.lock_vertical_resize = kwargs.pop("lock_vertical_resize", False)
         # self.item_id = self.canvas.create_text(self.x, self.y, text=self.text, font=("Helvetica", 16), fill="black")
         if self.parent is not None:
             self.x += self.parent.x
@@ -164,6 +165,8 @@ class BaseWidget:
             # index = self.resize_handles.index(self.active_resize_handle)
             dx = event.x - self.offset_x
             dy = event.y - self.offset_y
+            if self.lock_vertical_resize:
+                dy = 0
 
             if index == 0:  # Top-left handle
                 new_x = self.x + dx
@@ -266,6 +269,7 @@ class BaseWidget:
     def bind_to_parent(self):
         # self.parent = None
         success, parent = self.bind_to_parent_signal.emit(self)
+        print(success, parent)
         if success:
             self.parent = parent
         self.clicked_signal.emit(self.get_data())

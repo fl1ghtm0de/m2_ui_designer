@@ -20,54 +20,57 @@ class Sidebar(ctk.CTkFrame):
         entry.delete(0, ctk.END)
         entry.insert(0, text)
 
+
     def set_styles(self):
         style = ttk.Style()
         style.theme_use("clam")
-        current_mode = ctk.get_appearance_mode()
+        self.current_mode = ctk.get_appearance_mode()
 
-        if current_mode == "Dark":
-            treeview_bg = "#2B2B2B"
-            treeview_fg = "white"
-            treeview_field_bg = "#2B2B2B"
-            heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
-            heading_fg = "white"
-            active_bg = "#144870"   # Slightly lighter blue
-            selected_bg = "#555555"
+        if self.current_mode == "Dark":
+            self.treeview_bg = "#2B2B2B"
+            self.treeview_fg = "white"
+            self.treeview_field_bg = "#2B2B2B"
+            self.heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
+            self.heading_fg = "white"
+            self.active_bg = "#144870"  # Slightly lighter blue
+            self.selected_bg = "#555555"
+            self.entry_bg = "#2B2B2B"
+            self.entry_fg = "white"
         else:  # Light mode
-            treeview_bg = "#ffffff"
-            treeview_fg = "black"
-            treeview_field_bg = "#ffffff"
-            heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
-            heading_fg = "white"
-            active_bg = "#144870"   # Slightly lighter blue
-            selected_bg = "#cccccc"
+            self.treeview_bg = "#ffffff"
+            self.treeview_fg = "black"
+            self.treeview_field_bg = "#ffffff"
+            self.heading_bg = "#1F6AA5"  # Light blue to match CustomTkinter button
+            self.heading_fg = "white"
+            self.active_bg = "#144870"  # Slightly lighter blue
+            self.selected_bg = "#cccccc"
+            self.entry_bg = "#ffffff"
+            self.entry_fg = "black"
 
         style.configure("Treeview",
-                        background=treeview_bg,
-                        foreground=treeview_fg,
-                        fieldbackground=treeview_field_bg,
+                        background=self.treeview_bg,
+                        foreground=self.treeview_fg,
+                        fieldbackground=self.treeview_field_bg,
                         rowheight=25,
                         font=("Arial", 12),
                         borderwidth=0,
                         )
 
         style.configure("Treeview.Heading",
-                        background=heading_bg,
-                        foreground=heading_fg,
+                        background=self.heading_bg,
+                        foreground=self.heading_fg,
                         relief="raised",
                         padding=(10, 5),
                         font=("Arial", 12, "bold"),
                         borderwidth=0,
                         )
 
-        # style.configure('Edge.Treeview', highlightthickness=0, bd=0)
-
         style.map("Treeview.Heading",
-                background=[('active', active_bg), ('pressed', heading_bg)],
+                background=[('active', self.active_bg), ('pressed', self.heading_bg)],
                 relief=[('pressed', 'sunken')])
 
         style.map("Treeview",
-                background=[('selected', selected_bg)],
+                background=[('selected', self.selected_bg)],
                 foreground=[('selected', 'white')])
 
     def change_appearance_mode(self, new_appearance_mode):
@@ -117,13 +120,17 @@ class SidebarRight(Sidebar):
         key, value = self.attribute_table.item(item_id, 'values')
 
         self.entry_popup = tk.Entry(self)
-        self.entry_popup.configure(highlightthickness=0, bd=0)
+        self.entry_popup.configure(highlightthickness=0, bd=0,
+                                background=self.entry_bg,
+                                foreground=self.entry_fg,
+                                font=("Arial", 12))
+
         self.entry_popup.insert(0, value)
         self.entry_popup.focus()
         self.entry_popup.place(
-            x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(),
+            x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx() + 3, # small offset to match placing
             y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
-            width=width,
+            width=width - 4, # small offset to match placing
             height=height
         )
         self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
@@ -209,7 +216,7 @@ class SidebarLeft(Sidebar):
         self.image_btn = ctk.CTkButton(self, text="Image", command=lambda: self.create_widget_signal.emit({"_type": "image"}))
         self.image_btn.pack(pady=10, padx=10)
 
-        self.titlebar_btn = ctk.CTkButton(self, text="Titlebar", command=lambda: self.create_widget_signal.emit({"_type": "titlebar", "width": 230, "height": 30}))
+        self.titlebar_btn = ctk.CTkButton(self, text="Titlebar", command=lambda: self.create_widget_signal.emit({"_type": "titlebar", "width": 230, "height": 23}))
         self.titlebar_btn.pack(pady=10, padx=10)
 
 # class SidebarBottom(Sidebar):

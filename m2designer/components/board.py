@@ -1,4 +1,5 @@
 from components.base_widget import BaseWidget
+from components.titlebar import Titlebar
 from tools.image_tools import create_tiled_image, add_borders, make_final_image
 from tkinter import Canvas
 from config_loader import Config
@@ -36,3 +37,8 @@ class Board(BaseWidget):
         data = super().get_data()
         del data["image_path"]
         return data
+
+    # def create_context_menu(self):
+    #     super().create_context_menu()
+    #     self.context_menu.insert_command(8, label="Add Titlebar", command=self.add_titlebar)
+    #     self.context_menu.insert_separator(8)
