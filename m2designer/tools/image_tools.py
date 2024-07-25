@@ -1,5 +1,6 @@
 from PIL import Image, ImageTk, ImageOps
 from customtkinter import CTkImage
+from config_loader import Config
 
 def open_image(image_path):
     img = Image.open(image_path)
@@ -23,7 +24,21 @@ def create_tiled_image(image_path, width, height):
 
     return tiled_image
 
-def add_borders(tiled_image, border_images):
+def add_borders(tiled_image):
+    cfg_loader = Config()
+    border_images = {
+        "top" : cfg_loader.top,
+        "left": cfg_loader.left,
+        "bottom": cfg_loader.bottom,
+        "right": cfg_loader.right,
+        "top_left_corner": cfg_loader.top_left_corner,
+        "bottom_left_corner": cfg_loader.bottom_left_corner,
+        "bottom_right_corner": cfg_loader.bottom_right_corner,
+        "top_right_corner": cfg_loader.top_right_corner,
+        "close_button": cfg_loader.close_button,
+        "minimize_button": cfg_loader.minimize_button
+    }
+
     width, height = tiled_image.size
     result_image = Image.new('RGBA', (width, height))
 

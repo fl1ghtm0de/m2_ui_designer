@@ -9,10 +9,8 @@ from components.text import Text
 from components.image import Image
 from components.titlebar import Titlebar
 from tools.image_tools import create_tiled_image, add_borders, make_final_image, stretch_image, create_titlebar
-from config_loader import Config
 from ctk_signal import Signal
-
-from exceptions import ImageSelectionError
+from exceptions import ComponentResizingError
 class WidgetRelationshipManager(object):
     """singleton class to keep track of all placed widgets and their relationships
     """
@@ -411,14 +409,20 @@ class WidgetRelationshipManager(object):
 
     def recalculate_image(self, obj, width, height):
         if isinstance(obj, BaseWidget):
+            new_img = None
             if obj.resize_type == "tile":
-                if isinstance(obj, Titlebar):
-                    bar_img = create_titlebar(obj.tb_left, obj.tb_center, obj.tb_right, width)
-                    self.til_img_map[obj.image_id] = bar_img
-                else:
-                    til_img = create_tiled_image(obj.image_path, width, height)
-                    til_img = add_borders(til_img, obj.image_borders)
-                    self.til_img_map[obj.image_id] = make_final_image(til_img)
+                try:
+                    if isinstance(obj, Titlebar):
+                        new_img = create_titlebar(obj.tb_left, obj.tb_center, obj.tb_right, width)
+                    elif isinstance(obj, Board):
+                        new_img = create_tiled_image(obj.image_path, width, height)
+                        new_img = add_borders(new_img)
+                        new_img = make_final_image(new_img)
+                    else:
+                        raise ComponentResizingError(f"tile-resizing not defined for component-type: {obj}")
+                except ValueError as e:
+                    print(e)
+                    return
 
             elif obj.resize_type == "stretch":
                 corner_radius = 4
@@ -427,9 +431,11 @@ class WidgetRelationshipManager(object):
                 if height < corner_radius * 2 + 1:
                     height = corner_radius * 2 + 1
 
-                self.til_img_map[obj.image_id] = stretch_image(obj.image_path, width, height, corner_radius)
+                new_img = stretch_image(obj.image_path, width, height, corner_radius)
 
-            self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
+            if new_img is not None:
+                self.til_img_map[obj.image_id] = new_img
+                self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
 
     def parse_to_uiscript_format(self):
         if self.curr_widget is not None:

@@ -52,13 +52,12 @@ class View:
         # self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_right.set_entry_values)
         self.wrm.error_message_signal.connect(lambda title, msg: messagebox.showerror(title, msg))
-        w = self.wrm.create_widget(_type="board", canvas=self.canvas, x=100, y=100, width=600, height=600)
-        w1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=200, height=140, parent=w, text="w1")
+        # w = self.wrm.create_widget(_type="board", canvas=self.canvas, x=100, y=100, width=600, height=600)
         # b1 = self.wrm.create_widget(_type="button", button_type="large", canvas=self.canvas, x=10, y=10, parent=w)
         # a = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=200, width=30, height=30, parent=w)
         # b = self.wrm.create_widget(_type="board", canvas=self.canvas, x=45, y=200, width=30, height=30, parent=w)
-        w1_1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=180, height=40, parent=w1)
-        w1_2 = self.wrm.create_widget(_type="thinboard", canvas=self.canvas, x=75, y=55, width=130, height=40, parent=w1)
+        # w1_1 = self.wrm.create_widget(_type="board", canvas=self.canvas, x=10, y=10, width=180, height=40, parent=w1)
+        # w1_2 = self.wrm.create_widget(_type="thinboard", canvas=self.canvas, x=75, y=55, width=130, height=40, parent=w1)
 
         self.app.mainloop()
 

@@ -1,5 +1,6 @@
 from tkinter import Menu
 from ctk_signal import Signal
+from tools.image_tools import open_image
 
 class WindowIndexManager:
     def __new__(cls):
@@ -53,20 +54,20 @@ class BaseWidget:
         self.height = kwargs.pop("height", 100)
         self.image = kwargs.pop("image", None)
         self.image_path = kwargs.pop("image_path", None)
-        self.image_borders = kwargs.pop("image_borders", None)
         self.canvas = canvas
         self.parent = kwargs.pop("parent", None)
         self.resizable = kwargs.pop("resizable", False)
         self.resize_type = kwargs.pop("resize_type", None)
         self.resize_locked = False
         self.lock_vertical_resize = kwargs.pop("lock_vertical_resize", False)
-        # self.item_id = self.canvas.create_text(self.x, self.y, text=self.text, font=("Helvetica", 16), fill="black")
+
         if self.parent is not None:
             self.x += self.parent.x
             self.y += self.parent.y
 
         self.image_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor='nw')
         self.text_id = self.canvas.create_text(self.x+3, self.y+self.height//2, text=self.text, anchor='w', font=('Helvetica 9'), fill="white",)
+
         self.canvas.tag_bind(self.image_id, "<Button-1>", self.on_click)
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
 
@@ -99,6 +100,10 @@ class BaseWidget:
 
     def __del__(self):
         self.index_mgr.free_index(type(self), self.__index)
+
+    def create_image(self, dir): # unused. To Do: make image resizing directly on each component class instead of using wrm
+        img, width, height = open_image(dir)
+        return img, width, height
 
     def set_text(self, text):
         if self.text is not None and text != "None":
