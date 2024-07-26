@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk
 from ctk_signal import Signal
+from config_loader import Config
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, master=None, **kwargs):
@@ -86,6 +87,8 @@ class SidebarRight(Sidebar):
         self.create_widgets()
         self.entry_input_signal = Signal(object, object)
         self.attr_type_map = {}
+        self.cfg_loader = Config()
+        self.dropdown_selection = {}
 
     def create_widgets(self):
         self.attribute_table = ttk.Treeview(self, columns=("Attribute", "Value"), show='headings')
@@ -101,12 +104,17 @@ class SidebarRight(Sidebar):
     def clear_table(self):
         for item in self.attribute_table.get_children():
             self.attribute_table.delete(item)
+        self.dropdown_selection.clear()
 
     def set_entry_values(self, data):
         self.clear_table()
         for widget_attr, attr_value in data.items():
             self.attr_type_map[widget_attr] = type(attr_value)
-            self.add_row(widget_attr, attr_value)
+            if widget_attr in self.cfg_loader.dropdown_attributes:
+                self.add_row(widget_attr, "select")
+                self.dropdown_selection[widget_attr] = attr_value
+            else:
+                self.add_row(widget_attr, attr_value)
 
     def on_double_click(self, event):
         item_id = self.attribute_table.identify_row(event.y)
@@ -115,26 +123,58 @@ class SidebarRight(Sidebar):
         if column == '#2':  # Make sure the click is on the "Value" column
             self.edit_value_cell(item_id)
 
+    def on_item_selected(self, attr, value, var):
+        success = self.entry_input_signal.emit(attr, value)
+
     def edit_value_cell(self, item_id):
         x, y, width, height = self.attribute_table.bbox(item_id, 'Value')
         key, value = self.attribute_table.item(item_id, 'values')
 
-        self.entry_popup = tk.Entry(self)
-        self.entry_popup.configure(highlightthickness=0, bd=0,
-                                background=self.entry_bg,
-                                foreground=self.entry_fg,
-                                font=("Arial", 12))
+        if key in self.cfg_loader.dropdown_attributes:
+            self.entry_popup = tk.Menubutton(self, text="select", relief=ctk.RAISED)
+            self.entry_popup.place(
+                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx() + 3, # small offset to match placing
+                y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
+                width=width - 4,
+                height=height
+            )
+            self.entry_popup.menu = tk.Menu(self.entry_popup, tearoff=0)
+            self.entry_popup["menu"] = self.entry_popup.menu
 
-        self.entry_popup.insert(0, value)
-        self.entry_popup.focus()
-        self.entry_popup.place(
-            x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx() + 3, # small offset to match placing
-            y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
-            width=width - 4, # small offset to match placing
-            height=height
-        )
-        self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
-        self.entry_popup.bind('<FocusOut>', lambda event: self.destroy_entry_popup())
+            for option in self.cfg_loader.style_options:
+                print(option)
+                item = tk.IntVar()
+                if key in self.dropdown_selection.keys():
+                    if option in self.dropdown_selection[key]:
+                        print("setting", option, "to 1")
+                        item.set(1)
+                    else:
+                        print("setting", option, "to 0")
+                        item.set(0)
+
+                self.entry_popup.menu.add_checkbutton(
+                    label=option,
+                    variable=item,
+                    command=lambda opt=option, var=item: self.on_item_selected(key, opt, var)
+                )
+
+        else:
+            self.entry_popup = tk.Entry(self)
+            self.entry_popup.configure(highlightthickness=0, bd=0,
+                                    background=self.entry_bg,
+                                    foreground=self.entry_fg,
+                                    font=("Arial", 12))
+
+            self.entry_popup.insert(0, value)
+            self.entry_popup.focus()
+            self.entry_popup.place(
+                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx() + 3, # small offset to match placing
+                y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
+                width=width - 4, # small offset to match placing
+                height=height
+            )
+            self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
+            self.entry_popup.bind('<FocusOut>', lambda event: self.destroy_entry_popup())
 
     def update_value(self, item_id):
         try:

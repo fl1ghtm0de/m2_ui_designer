@@ -119,6 +119,7 @@ class WidgetRelationshipManager(object):
         self.canvas.coords(handle_id, x, y, x2, y2)
 
     def apply_entry_input(self, attr, value):
+        print(attr, value)
         widget = self.curr_widget
         success = False
         if widget is not None:
@@ -172,6 +173,12 @@ class WidgetRelationshipManager(object):
                     success = True
                 else:
                     self.error_message_signal.emit("Error", f"File at {value} not found")
+
+            elif attr == "style":
+                if value in widget.style:
+                    widget.style.remove(value)
+                else:
+                    widget.style.append(value)
 
             else:
                 setattr(widget, attr, value)

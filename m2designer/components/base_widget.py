@@ -295,7 +295,7 @@ class BaseWidget:
             "height" : self.height,
             "type" : str(self),
             "name" : self.name,
-            "style" : self.get_style_string(),
+            "style" : self.style,
             "image_path" : self.image_path,
         }
 

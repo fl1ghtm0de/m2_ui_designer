@@ -15,5 +15,7 @@
     "slot" : "images/components/slot.png",
     "titlebar_left" : "images/titlebar/titlebar_left.png",
     "titlebar_center" : "images/titlebar/titlebar_center.png",
-    "titlebar_right" : "images/titlebar/titlebar_right.png"
+    "titlebar_right" : "images/titlebar/titlebar_right.png",
+    "dropdown_attributes" : ["style"],
+    "style_options" : ["movable", "float"]
 }
