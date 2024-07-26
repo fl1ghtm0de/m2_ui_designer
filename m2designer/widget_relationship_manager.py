@@ -186,8 +186,6 @@ class WidgetRelationshipManager(object):
 
         return success
 
-
-
     def move_widget_absolute(self, x, y, x_parent, y_parent, width, height, wdg_name, style, text, widget=None):
         if hasattr(self, "canvas"):
             if widget is None:

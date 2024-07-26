@@ -89,6 +89,8 @@ class SidebarRight(Sidebar):
         self.attr_type_map = {}
         self.cfg_loader = Config()
         self.dropdown_selection = {}
+        self.entry_popup = None
+        self.dropdown_popup = {}
 
     def create_widgets(self):
         self.attribute_table = ttk.Treeview(self, columns=("Attribute", "Value"), show='headings')
@@ -106,15 +108,19 @@ class SidebarRight(Sidebar):
             self.attribute_table.delete(item)
         self.dropdown_selection.clear()
 
+
     def set_entry_values(self, data):
         self.clear_table()
         for widget_attr, attr_value in data.items():
-            self.attr_type_map[widget_attr] = type(attr_value)
-            if widget_attr in self.cfg_loader.dropdown_attributes:
-                self.add_row(widget_attr, "select")
-                self.dropdown_selection[widget_attr] = attr_value
-            else:
-                self.add_row(widget_attr, attr_value)
+                self.attr_type_map[widget_attr] = type(attr_value)
+                if widget_attr in self.cfg_loader.dropdown_attributes:
+                    self.add_row(widget_attr, "")
+                    self.dropdown_selection[widget_attr] = attr_value
+                    self.update_idletasks()  # Ensure the row is fully added and visible
+                    item_id = self.attribute_table.get_children()[-1]  # Get the last added row item id
+                    self.edit_value_cell(item_id)  # Automatically apply the popup menu
+                else:
+                    self.add_row(widget_attr, attr_value)
 
     def on_double_click(self, event):
         item_id = self.attribute_table.identify_row(event.y)
@@ -123,48 +129,48 @@ class SidebarRight(Sidebar):
         if column == '#2':  # Make sure the click is on the "Value" column
             self.edit_value_cell(item_id)
 
-    def on_item_selected(self, attr, value, var):
+    def on_item_selected(self, attr, value, key, y_offset):
         success = self.entry_input_signal.emit(attr, value)
+        self.dropdown_popup[key].menu.post(self.dropdown_popup[key].winfo_rootx(), self.dropdown_popup[key].winfo_rooty() + y_offset) # automatically re-open the menu at the same position
 
     def edit_value_cell(self, item_id):
         x, y, width, height = self.attribute_table.bbox(item_id, 'Value')
         key, value = self.attribute_table.item(item_id, 'values')
 
         if key in self.cfg_loader.dropdown_attributes:
-            self.entry_popup = tk.Menubutton(self, text="select", relief=ctk.RAISED)
-            self.entry_popup.place(
-                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx() + 3, # small offset to match placing
+            self.dropdown_popup[key] = tk.Menubutton(self, text="click to select", relief=ctk.RAISED, anchor='w')
+            self.dropdown_popup[key].place(
+                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(), # small offset to match placing
                 y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
                 width=width - 4,
                 height=height
             )
-            self.entry_popup.menu = tk.Menu(self.entry_popup, tearoff=0)
-            self.entry_popup["menu"] = self.entry_popup.menu
+            self.dropdown_popup[key].menu = tk.Menu(self.dropdown_popup[key], tearoff=0)
+            self.dropdown_popup[key]["menu"] = self.dropdown_popup[key].menu
 
-            for option in self.cfg_loader.style_options:
-                print(option)
+            for option in getattr(self.cfg_loader, f"{key}_options"):
                 item = tk.IntVar()
                 if key in self.dropdown_selection.keys():
                     if option in self.dropdown_selection[key]:
-                        print("setting", option, "to 1")
                         item.set(1)
                     else:
-                        print("setting", option, "to 0")
                         item.set(0)
 
-                self.entry_popup.menu.add_checkbutton(
+                self.dropdown_popup[key].menu.add_checkbutton(
                     label=option,
                     variable=item,
-                    command=lambda opt=option, var=item: self.on_item_selected(key, opt, var)
+                    command=lambda opt=option, var=item: self.on_item_selected(key, opt, key, height)
                 )
+
+            self.dropdown_popup[key].configure(highlightthickness=0, bd=0,
+                                    background=self.entry_bg,
+                                    foreground=self.entry_fg,
+                                    activebackground=self.entry_bg,
+                                    activeforeground=self.entry_fg,
+                                    font=("Arial", 12))
 
         else:
             self.entry_popup = tk.Entry(self)
-            self.entry_popup.configure(highlightthickness=0, bd=0,
-                                    background=self.entry_bg,
-                                    foreground=self.entry_fg,
-                                    font=("Arial", 12))
-
             self.entry_popup.insert(0, value)
             self.entry_popup.focus()
             self.entry_popup.place(
@@ -175,6 +181,11 @@ class SidebarRight(Sidebar):
             )
             self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
             self.entry_popup.bind('<FocusOut>', lambda event: self.destroy_entry_popup())
+
+            self.entry_popup.configure(highlightthickness=0, bd=0,
+                                    background=self.entry_bg,
+                                    foreground=self.entry_fg,
+                                    font=("Arial", 12))
 
     def update_value(self, item_id):
         try:

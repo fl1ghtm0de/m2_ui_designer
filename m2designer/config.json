@@ -17,5 +17,5 @@
     "titlebar_center" : "images/titlebar/titlebar_center.png",
     "titlebar_right" : "images/titlebar/titlebar_right.png",
     "dropdown_attributes" : ["style"],
-    "style_options" : ["movable", "float"]
+    "style_options" : ["movable", "float", "attach"]
 }
