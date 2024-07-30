@@ -442,49 +442,76 @@ class WidgetRelationshipManager(object):
                 self.til_img_map[obj.image_id] = new_img
                 self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
 
+    def generate_uiscript(self):
+        data = {
+            "name" : "MainWindow",
+            "x" : 0,
+            "y" : 0,
+            "style" : ["movable", "float"],
+            "width" : 0,
+            "height" : 0,
+            **self.parse_to_uiscript_format()
+        }
+        generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")
+
     def parse_to_uiscript_format(self):
-        if self.curr_widget is not None:
-            children = flattenDict(self.get_child_widgets(self.curr_widget))
-            data = {
-                "name" : self.curr_widget.name,
-                "x" : 0,
-                "y" : 0,
-                "style" : self.curr_widget.get_style(),
-                "width" : self.curr_widget.width,
-                "height" : self.curr_widget.height,
-                "children" : [
-                    {
-                        "name" : "board",
-                        "type" : "board",
-                        "style" : ("attach",),
-                        "x" : 0,
-                        "y" : 0,
-                        "width" : self.curr_widget.width,
-                        "height" : self.curr_widget.height,
-                        "children" : [
-                            {
-                                "name" : "TitleBar",
-                                "type" : "titlebar",
-                                "style" : ("attach",),
-                                "x" : 6,
-                                "y" : 6,
-                                "width" : self.curr_widget.width - 15,
-                                "color" : "yellow",
-                            }
-                        ]
-                    }
-                ]
-            }
+        children = {self.curr_widget : self.get_child_widgets(self.curr_widget).copy()}
+        data = {"children": []}
 
-            for child in children:
-                data["children"].append({
-                    # IMPLEMENT
-                    })
+        stack = [(children, data)]
+
+        while stack:
+            current_children, current_data = stack.pop()
+
+            for key, value in current_children.items():
+                uis_data = key.get_uiscript_data()
+                current_data["children"].append(uis_data)
+
+                if isinstance(value, dict) and len(value.keys()) > 0:
+                    stack.append((value, uis_data))
+
+        return data
+            # children = flattenDict(self.get_child_widgets(self.curr_widget))
+            # data = {
+            #     "name" : self.curr_widget.name,
+            #     "x" : 0,
+            #     "y" : 0,
+            #     "style" : self.curr_widget.get_style(),
+            #     "width" : self.curr_widget.width,
+            #     "height" : self.curr_widget.height,
+            #     "children" : [
+            #         {
+            #             "name" : "board",
+            #             "type" : "board",
+            #             "style" : ("attach",),
+            #             "x" : 0,
+            #             "y" : 0,
+            #             "width" : self.curr_widget.width,
+            #             "height" : self.curr_widget.height,
+            #             "children" : [
+            #                 {
+            #                     "name" : "TitleBar",
+            #                     "type" : "titlebar",
+            #                     "style" : ("attach",),
+            #                     "x" : 6,
+            #                     "y" : 6,
+            #                     "width" : self.curr_widget.width - 15,
+            #                     "color" : "yellow",
+            #                 }
+            #             ]
+            #         }
+            #     ]
+            # }
+
+            # for child in children:
+            #     data["children"].append({
+            #         # IMPLEMENT
+            #         })
 
 
-            # parent_x, parent_y = widget.parent.x, widget.parent.y
+            # # parent_x, parent_y = widget.parent.x, widget.parent.y
 
-            generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")
+            # generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")
 
 
 

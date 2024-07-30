@@ -274,7 +274,6 @@ class BaseWidget:
     def bind_to_parent(self):
         # self.parent = None
         success, parent = self.bind_to_parent_signal.emit(self)
-        print(success, parent)
         if success:
             self.parent = parent
         self.clicked_signal.emit(self.get_data())
@@ -289,8 +288,8 @@ class BaseWidget:
     def get_data(self):
         data = {
             "object" : self,
-            "x" : self.x,
-            "y" : self.y,
+            "x" : int(self.x),
+            "y" : int(self.y),
             "width" : self.width,
             "height" : self.height,
             "type" : str(self),
@@ -312,4 +311,12 @@ class BaseWidget:
             # data["x_relative"] = self.x - self.parent.x
             # data["y_relative"] = self.y - self.parent.y
 
+        return data
+
+    def get_uiscript_data(self):
+        data = self.get_data()
+        del data["object"]
+        if (style := data.get("style", None)) is not None and len(style) == 0:
+            del data["style"]
+        data["children"] = []
         return data

@@ -47,7 +47,7 @@ class View:
         self.wrm.set_canvas(self.canvas)
 
         self.sidebar_left.create_widget_signal.connect(self.handle_sidebar_signal)
-        self.sidebar_left.export_uiscript_signal.connect(self.wrm.parse_to_uiscript_format)
+        self.sidebar_left.export_uiscript_signal.connect(self.wrm.generate_uiscript)
         # self.sidebar_bottom.entry_input_signal.connect(self.wrm.move_widget_absolute)
         # self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_right.set_entry_values)

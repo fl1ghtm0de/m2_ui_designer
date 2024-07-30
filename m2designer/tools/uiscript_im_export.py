@@ -1,3 +1,4 @@
+from pathlib import PosixPath
 
 def generate_python_file(file_name, data, *imports):
     def dict_to_str(d, indent=0):
@@ -21,7 +22,7 @@ def generate_python_file(file_name, data, *imports):
                     else:
                         lines.append(f'{indent_str}{item},')
                 lines.append(f'{indent_str}),')
-            elif isinstance(value, str):
+            elif isinstance(value, (str, PosixPath)):
                 lines.append(f'{indent_str}"{key}" : "{value}",')
             else:
                 lines.append(f'{indent_str}"{key}" : {value},')

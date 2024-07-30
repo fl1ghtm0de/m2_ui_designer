@@ -8,35 +8,45 @@ import item
 import app
 
 window = {
-    "name" : "board_0",
+    "name" : "MainWindow",
     "x" : 0,
     "y" : 0,
     "style" : (
+        "movable",
+        "float",
     ),
-    "width" : 617,
-    "height" : 445,
+    "width" : 0,
+    "height" : 0,
     "children" : (
     {
-        "name" : "board",
+        "x" : 271,
+        "y" : 165,
+        "width" : 461,
+        "height" : 281,
         "type" : "board",
-        "style" : (
-            "attach",
-        ),
-        "x" : 0,
-        "y" : 0,
-        "width" : 617,
-        "height" : 445,
+        "name" : "board_0",
         "children" : (
         {
-            "name" : "TitleBar",
+            "x" : 275,
+            "y" : 168,
+            "width" : 453,
+            "height" : 23,
             "type" : "titlebar",
-            "style" : (
-                "attach",
+            "name" : "titlebar_0",
+            "text" : "Gegenstandsverbesserung",
+            "children" : (
             ),
-            "x" : 6,
-            "y" : 6,
-            "width" : 602,
-            "color" : "yellow",
+        },
+        {
+            "x" : 294,
+            "y" : 268,
+            "width" : 50,
+            "height" : 20,
+            "type" : "text",
+            "name" : "text_0",
+            "text" : "Yang:",
+            "children" : (
+            ),
         },
         ),
     },
