@@ -108,7 +108,6 @@ class SidebarRight(Sidebar):
             self.attribute_table.delete(item)
         self.dropdown_selection.clear()
 
-
     def set_entry_values(self, data):
         self.clear_table()
         for widget_attr, attr_value in data.items():
@@ -261,7 +260,7 @@ class SidebarLeft(Sidebar):
         self.slot_btn = ctk.CTkButton(self, text="Slot", command=lambda: self.create_widget_signal.emit({"_type": "slot"}))
         self.slot_btn.pack(pady=10, padx=10)
 
-        self.text_btn = ctk.CTkButton(self, text="Text", command=lambda: self.create_widget_signal.emit({"_type": "text", "width" : 50, "height" : 20}))
+        self.text_btn = ctk.CTkButton(self, text="Text", command=lambda: self.create_widget_signal.emit({"_type": "text", "width" : 90, "height" : 8}))
         self.text_btn.pack(pady=10, padx=10)
 
         self.image_btn = ctk.CTkButton(self, text="Image", command=lambda: self.create_widget_signal.emit({"_type": "image"}))

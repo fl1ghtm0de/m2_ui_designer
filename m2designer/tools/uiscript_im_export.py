@@ -1,6 +1,11 @@
 from pathlib import PosixPath
 
 def generate_python_file(file_name, data, *imports):
+    """
+    file_name: The exported file's name
+    data: Data-dict to be parsed into uiscript format
+    imports: All required module imports within the exported uiscript file
+    """
     def dict_to_str(d, indent=0):
         """Converts a dictionary to a string with indentation."""
         lines = []

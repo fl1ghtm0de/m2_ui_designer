@@ -16,7 +16,7 @@ class Image(BaseWidget):
         # self.resize_type = "tile"
 
     def __str__(self):
-        return f"text"
+        return f"image"
 
     def pick_image(self):
         file_path = filedialog.askopenfilename(

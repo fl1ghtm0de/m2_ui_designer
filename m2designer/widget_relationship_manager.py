@@ -448,8 +448,8 @@ class WidgetRelationshipManager(object):
             "x" : 0,
             "y" : 0,
             "style" : ["movable", "float"],
-            "width" : 0,
-            "height" : 0,
+            "width" : self.curr_widget.width,
+            "height" : self.curr_widget.height,
             **self.parse_to_uiscript_format()
         }
         generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")

@@ -66,7 +66,7 @@ class BaseWidget:
             self.y += self.parent.y
 
         self.image_id = self.canvas.create_image(self.x, self.y, image=self.image, anchor='nw')
-        self.text_id = self.canvas.create_text(self.x+3, self.y+self.height//2, text=self.text, anchor='w', font=('Helvetica 9'), fill="white",)
+        self.text_id = self.canvas.create_text(self.x+self.width//2, self.y+self.height//2, text=self.text, font=('Helvetica 9'), fill="white",)
 
         self.canvas.tag_bind(self.image_id, "<Button-1>", self.on_click)
         self.canvas.tag_bind(self.image_id, "<B1-Motion>", self.on_drag)
@@ -117,7 +117,7 @@ class BaseWidget:
         return ", ".join(self.style)
 
     def create_resize_handles(self):
-        size = 8
+        size = 6
         resize_handles = []
         positions = [
             (self.x - size / 2, self.y - size / 2),
@@ -209,7 +209,7 @@ class BaseWidget:
             self.offset_y = event.y
 
     def update_resize_handles(self):
-        size = 8
+        size = 6
         positions = [
             (self.x - size / 2, self.y - size / 2),
             (self.x + self.width - size / 2, self.y - size / 2),
@@ -318,5 +318,11 @@ class BaseWidget:
         del data["object"]
         if (style := data.get("style", None)) is not None and len(style) == 0:
             del data["style"]
+        if self.parent is not None:
+            data["x"] -= int(self.parent.x)
+            data["y"] -= int(self.parent.y)
+        else:
+            data["x"] = 0
+            data["y"] = 0
         data["children"] = []
         return data

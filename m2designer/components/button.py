@@ -31,3 +31,10 @@ class Button(BaseWidget):
         data = super().get_data()
         data["button_type"] = self.button_type
         return data
+
+    def get_uiscript_data(self):
+        data = super().get_uiscript_data()
+        data["type"] = "button"
+        del data["button_type"]
+        del data["image_path"]
+        return data
