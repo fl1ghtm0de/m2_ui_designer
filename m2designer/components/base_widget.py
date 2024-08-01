@@ -262,7 +262,7 @@ class BaseWidget:
             if state:
                 self.canvas.itemconfig(handle, fill="red")
             else:
-                self.canvas.itemconfig(handle, fill="skyblue")
+                self.canvas.itemconfig(handle, fill="white")
 
     def destroy(self):
         self.delete_signal.emit(self)

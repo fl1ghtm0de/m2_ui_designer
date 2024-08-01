@@ -3,6 +3,7 @@ from widget_relationship_manager import WidgetRelationshipManager
 from tkinter import Canvas, messagebox
 from sidebar import SidebarLeft, SidebarRight
 from ctk_signal import Signal
+from dialogs.export_script_dialog import UiscriptExportDialog
 
 from config_loader import Config
 
@@ -47,7 +48,7 @@ class View:
         self.wrm.set_canvas(self.canvas)
 
         self.sidebar_left.create_widget_signal.connect(self.handle_sidebar_signal)
-        self.sidebar_left.export_uiscript_signal.connect(self.wrm.generate_uiscript)
+        self.sidebar_left.export_uiscript_signal.connect(self.export_uiscript)
         # self.sidebar_bottom.entry_input_signal.connect(self.wrm.move_widget_absolute)
         # self.set_bottom_sidebar_values_signal.connect(self.sidebar_bottom.set_entry_values)
         self.wrm.clicked_signal.connect(self.sidebar_right.set_entry_values)
@@ -60,6 +61,15 @@ class View:
         # w1_2 = self.wrm.create_widget(_type="thinboard", canvas=self.canvas, x=75, y=55, width=130, height=40, parent=w1)
 
         self.app.mainloop()
+
+    def export_uiscript(self):
+        if not self.wrm.is_only_1_toplevel_widget():
+            messagebox.showerror("Error", "There must be exactly one toplevel widget!")
+            return
+
+        dialog = UiscriptExportDialog(self.app)
+        self.app.wait_window(dialog)
+        self.wrm.generate_uiscript(*dialog.result)
 
     def set_canvas_background(self):
         """Set canvas background color based on the system appearance mode."""

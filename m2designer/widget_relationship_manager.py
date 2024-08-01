@@ -442,35 +442,51 @@ class WidgetRelationshipManager(object):
                 self.til_img_map[obj.image_id] = new_img
                 self.canvas.itemconfig(obj.image_id, image=self.til_img_map[obj.image_id])
 
-    def generate_uiscript(self):
-        data = {
-            "name" : "MainWindow",
-            "x" : 0,
-            "y" : 0,
-            "style" : ["movable", "float"],
-            "width" : self.curr_widget.width,
-            "height" : self.curr_widget.height,
-            **self.parse_to_uiscript_format()
-        }
-        generate_python_file("testui.py", data, "uiScriptLocale", "item", "app")
+    def get_toplevel_widget(self):
+        if self.widgets:
+            return list(self.widgets.keys())[0]
+        else:
+            return None
+
+    def is_only_1_toplevel_widget(self):
+        return len(self.widgets.keys()) == 1
+
+    def generate_uiscript(self, *imports):
+        if self.is_only_1_toplevel_widget():
+            toplevel_widget = self.get_toplevel_widget()
+            if toplevel_widget is not None:
+                data = {
+                    "name" : "MainWindow",
+                    "x" : 0,
+                    "y" : 0,
+                    "style" : ["movable", "float"],
+                    "width" : toplevel_widget.width,
+                    "height" : toplevel_widget.height,
+                    **self.parse_to_uiscript_format()
+                }
+                generate_python_file("testui.py", data, *imports)
+        else:
+            self.error_message_signal.emit("Error", "There must be exactly one toplevel widget!")
 
     def parse_to_uiscript_format(self):
-        children = {self.curr_widget : self.get_child_widgets(self.curr_widget).copy()}
-        data = {"children": []}
+        toplevel_widget = self.get_toplevel_widget()
+        if toplevel_widget is not None:
+            children = {toplevel_widget : self.get_child_widgets(toplevel_widget).copy()}
+            data = {"children": []}
 
-        stack = [(children, data)]
+            stack = [(children, data)]
 
-        while stack:
-            current_children, current_data = stack.pop()
+            while stack:
+                current_children, current_data = stack.pop()
 
-            for key, value in current_children.items():
-                uis_data = key.get_uiscript_data()
-                current_data["children"].append(uis_data)
+                for key, value in current_children.items():
+                    uis_data = key.get_uiscript_data()
+                    current_data["children"].append(uis_data)
 
-                if isinstance(value, dict) and len(value.keys()) > 0:
-                    stack.append((value, uis_data))
+                    if isinstance(value, dict) and len(value.keys()) > 0:
+                        stack.append((value, uis_data))
 
-        return data
+            return data
             # children = flattenDict(self.get_child_widgets(self.curr_widget))
             # data = {
             #     "name" : self.curr_widget.name,

@@ -1,4 +1,8 @@
 class Signal:
+    """
+    Class used to create Signals, very similar to the Signal class of Qt. However, currently there can always be exactly ONE function connected to a Signal.
+    Connecting another function will overwrite the existing callback.
+    """
     def __init__(self, *types):
         self.types = types
         self.func = None
