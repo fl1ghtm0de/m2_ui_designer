@@ -15,6 +15,12 @@ class UiscriptExportDialog(ctk.CTkToplevel):
         self.dropdown_menu.menu = tk.Menu(self.dropdown_menu, tearoff=0)
         self.dropdown_menu["menu"] = self.dropdown_menu.menu
 
+        self.file_name_text_var = ctk.StringVar(value="Enter filename")
+        self.file_name_entry = ctk.CTkEntry(self, textvariable=self.file_name_text_var)
+        self.file_name_text_var.trace_add("write", lambda *args: self.on_filename_input(self.file_name_text_var.get())) # update values on input
+        self.file_name_entry.bind("<FocusIn>", self.foc_in)
+        self.file_name_entry.pack(pady=10, padx=10)
+
         # self.dropdown_encoding_menu = tk.Menubutton(self, text="File encoding", relief=ctk.RAISED, anchor='w')
         # self.dropdown_encoding_menu.pack(pady=10, padx=10)
 
@@ -48,6 +54,16 @@ class UiscriptExportDialog(ctk.CTkToplevel):
         self.transient(parent) # make dialog always stay on top of parent
 
         self.result = []
+        self.filename = "uiscript.py"
+
+    def foc_in(self, event):
+        if self.file_name_text_var.get() == "Enter filename":
+            self.file_name_entry.delete('0', 'end')
+
+    def on_filename_input(self, text):
+        if not text.endswith(".py"):
+            text = f"{text}.py"
+        self.filename = text
 
     def on_item_selected(self, parent, value, y_offset):
         # success = self.entry_input_signal.emit(attr, value)

@@ -451,7 +451,7 @@ class WidgetRelationshipManager(object):
     def is_only_1_toplevel_widget(self):
         return len(self.widgets.keys()) == 1
 
-    def generate_uiscript(self, *imports):
+    def generate_uiscript(self, filename, *imports):
         if self.is_only_1_toplevel_widget():
             toplevel_widget = self.get_toplevel_widget()
             if toplevel_widget is not None:
@@ -464,7 +464,7 @@ class WidgetRelationshipManager(object):
                     "height" : toplevel_widget.height,
                     **self.parse_to_uiscript_format()
                 }
-                generate_python_file("testui.py", data, *imports)
+                generate_python_file(filename, data, *imports)
         else:
             self.error_message_signal.emit("Error", "There must be exactly one toplevel widget!")
 

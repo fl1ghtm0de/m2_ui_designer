@@ -69,7 +69,7 @@ class View:
 
         dialog = UiscriptExportDialog(self.app)
         self.app.wait_window(dialog)
-        self.wrm.generate_uiscript(*dialog.result)
+        self.wrm.generate_uiscript(dialog.filename, *dialog.result)
 
     def set_canvas_background(self):
         """Set canvas background color based on the system appearance mode."""
