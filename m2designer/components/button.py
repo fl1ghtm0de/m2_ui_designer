@@ -19,8 +19,8 @@ class Button(BaseWidget):
         self.button_type = button_type.lower()
         width = Button.sizeMapping.get(button_type, (0, 0))[0]
         height = Button.sizeMapping.get(button_type, (0, 0))[1]
-        cfg_loader = Config()
-        img_path = cfg_loader.construct_path(cfg_loader.BUTTON_PATH, f"{self.button_type}_button.png")
+        self.cfg_loader = Config()
+        img_path = self.cfg_loader.construct_path(self.cfg_loader.BUTTON_PATH, f"{self.button_type}_button.png")
         self.stretch_img = stretch_image(img_path, width, height, 3)
         super().__init__(canvas=canvas, image=self.stretch_img, image_path=img_path, width=width, height=height, text="", *args, **kwargs)
 
@@ -29,12 +29,15 @@ class Button(BaseWidget):
 
     def get_data(self):
         data = super().get_data()
-        data["button_type"] = self.button_type
+        # data["button_type"] = self.button_type
+        del data["image_path"]
         return data
 
     def get_uiscript_data(self):
         data = super().get_uiscript_data()
         data["type"] = "button"
-        del data["button_type"]
-        del data["image_path"]
+        for img_key, dir in self.cfg_loader.button_image_paths[f"{self.button_type}_button_dirs"].items():
+            data[img_key] = dir
+        # del data["button_type"]
+        # del data["image_path"]
         return data

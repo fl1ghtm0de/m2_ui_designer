@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+# import encodings.aliases
 from config_loader import Config
 
 class UiscriptExportDialog(ctk.CTkToplevel):
@@ -7,36 +8,54 @@ class UiscriptExportDialog(ctk.CTkToplevel):
 
         super().__init__(parent)
         self.title(title)
-
+        self.cfg_loader = Config()
         self.dropdown_menu = tk.Menubutton(self, text="Additional imports", relief=ctk.RAISED, anchor='w')
         self.dropdown_menu.pack(pady=10, padx=10)
 
         self.dropdown_menu.menu = tk.Menu(self.dropdown_menu, tearoff=0)
         self.dropdown_menu["menu"] = self.dropdown_menu.menu
 
+        # self.dropdown_encoding_menu = tk.Menubutton(self, text="File encoding", relief=ctk.RAISED, anchor='w')
+        # self.dropdown_encoding_menu.pack(pady=10, padx=10)
+
+        # self.dropdown_encoding_menu.menu = tk.Menu(self.dropdown_encoding_menu, tearoff=0)
+        # self.dropdown_encoding_menu["menu"] = self.dropdown_encoding_menu.menu
+
         self.submit_button = ctk.CTkButton(self, text="Generate", command=self.on_submit)
         self.submit_button.pack(pady=10, padx=10)
 
-        for import_option in Config().uiscript_imports:
+        for import_option in self.cfg_loader.uiscript_imports:
             item = tk.IntVar()
             self.dropdown_menu.menu.add_checkbutton(
                 label=import_option,
                 variable=item,
-                command=lambda opt=import_option, var=item: self.on_item_selected(opt, 25)
+                command=lambda opt=import_option, var=item: self.on_item_selected(self.dropdown_menu, opt, 25)
             )
+
+        # self.aliases = encodings.aliases.aliases # use this if u want to see all available encodings according to ur version of python
+        # self.all_encodings = set(self.aliases.values())
+        # self.all_encodings = self.cfg_loader.encodings
+        # for encoding_option in sorted(self.all_encodings):
+        #     item = tk.IntVar()
+        #     self.dropdown_encoding_menu.menu.add_checkbutton(
+        #         label=encoding_option,
+        #         variable=item,
+        #         command=lambda opt=encoding_option, var=item: self.on_item_selected(self.dropdown_encoding_menu, opt, 25)
+        #     )
+
 
         self.grab_set() # disable parent window while dialog is shown
         self.transient(parent) # make dialog always stay on top of parent
 
         self.result = []
 
-    def on_item_selected(self, value, y_offset):
+    def on_item_selected(self, parent, value, y_offset):
         # success = self.entry_input_signal.emit(attr, value)
         if value in self.result:
             self.result.remove(value)
         else:
             self.result.append(value)
-        self.dropdown_menu.menu.post(self.dropdown_menu.winfo_rootx(), self.dropdown_menu.winfo_rooty() + y_offset) # automatically re-open the menu at the same position
+        parent.menu.post(parent.winfo_rootx(), parent.winfo_rooty() + y_offset) # automatically re-open the menu at the same position
 
     def on_submit(self):
         self.destroy()

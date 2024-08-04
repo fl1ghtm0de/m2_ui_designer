@@ -107,6 +107,7 @@ class SidebarRight(Sidebar):
         for item in self.attribute_table.get_children():
             self.attribute_table.delete(item)
         self.dropdown_selection.clear()
+        self.destroy_entry_popup()
 
     def set_entry_values(self, data):
         self.clear_table()
@@ -139,7 +140,7 @@ class SidebarRight(Sidebar):
         if key in self.cfg_loader.dropdown_attributes:
             self.dropdown_popup[key] = tk.Menubutton(self, text="click to select", relief=ctk.RAISED, anchor='w')
             self.dropdown_popup[key].place(
-                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(), # small offset to match placing
+                x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(),
                 y=y + self.attribute_table.winfo_rooty() - self.winfo_rooty(),
                 width=width - 4,
                 height=height
@@ -167,9 +168,11 @@ class SidebarRight(Sidebar):
                                     activebackground=self.entry_bg,
                                     activeforeground=self.entry_fg,
                                     font=("Arial", 12))
+            self.dropdown_popup[key].bind('<FocusOut>', lambda event: self.destroy_entry_popup())
 
         else:
-            self.entry_popup = tk.Entry(self)
+            self.entry_popup_text_var = tk.StringVar()
+            self.entry_popup = tk.Entry(self, textvariable=self.entry_popup_text_var)
             self.entry_popup.insert(0, value)
             self.entry_popup.focus()
             self.entry_popup.place(
@@ -178,33 +181,33 @@ class SidebarRight(Sidebar):
                 width=width - 4, # small offset to match placing
                 height=height
             )
-            self.entry_popup.bind('<Return>', lambda event: self.update_value(item_id))
-            self.entry_popup.bind('<FocusOut>', lambda event: self.destroy_entry_popup())
-
             self.entry_popup.configure(highlightthickness=0, bd=0,
                                     background=self.entry_bg,
                                     foreground=self.entry_fg,
                                     font=("Arial", 12))
+            self.entry_popup_text_var.trace_add("write", lambda *args: self.update_value(item_id)) # update values on input
 
     def update_value(self, item_id):
         try:
-            new_value = self.entry_popup.get()
+            new_value = self.entry_popup_text_var.get()
             current_values = list(self.attribute_table.item(item_id, 'values'))
             old_value = current_values[1]
             current_values[1] = new_value
+
             try:
                 self.attr_type_map[current_values[0]](current_values[1]) # try to cast the current input to the initial datatype
             except ValueError:
                 self.show_error_signal.emit("Invalid input", f"Exspected type: {self.attr_type_map[current_values[0]]}")
                 return
-            else:
-                success = self.entry_input_signal.emit(current_values[0], self.attr_type_map[current_values[0]](current_values[1])) # if cast succeeds, emit the new data
+            else: # if cast succeeds, emit the new data
+                success = self.entry_input_signal.emit(current_values[0], self.attr_type_map[current_values[0]](current_values[1]))
 
             if success:
                 self.attribute_table.item(item_id, values=current_values)
 
         except Exception as e:
             print(f"Error updating value: {e}")
+
         finally:
             self.entry_popup.forget()
 

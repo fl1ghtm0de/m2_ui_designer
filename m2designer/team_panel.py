@@ -104,7 +104,7 @@ window = {
                 "height" : 120,
                 "type" : "image",
                 "name" : "image_0",
-                "image" : "d:/ymir work/ui/public/test.tga",
+                "image_path" : "d:/ymir work/ui/public/test.tga",
                 "children" : (
                 ),
             },

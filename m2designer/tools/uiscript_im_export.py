@@ -41,7 +41,7 @@ def generate_python_file(file_name, data, *imports):
     content += dict_to_str(data, 1)
     content += "\n}\n"
 
-    with open(file_name, "w") as file:
+    with open(file_name, mode="w", encoding="utf-8") as file:
         file.write(content)
 
 # Example usage

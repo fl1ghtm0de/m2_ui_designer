@@ -18,5 +18,47 @@
     "titlebar_right" : "images/titlebar/titlebar_right.png",
     "dropdown_attributes" : ["style"],
     "style_options" : ["movable", "float", "attach"],
-    "uiscript_imports" : ["uiScriptLocale", "item", "app"]
+    "uiscript_imports" : ["uiScriptLocale", "item", "app"],
+    "button_image_paths" : {
+        "big_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/big_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/big_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/big_button_03.sub"
+        },
+        "large_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/large_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/large_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/large_button_03.sub"
+        },
+        "middle_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/middle_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/middle_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/middle_button_03.sub"
+        },
+        "small_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/small_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/small_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/small_button_03.sub"
+        },
+        "small_thin_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/small_thin_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/small_thin_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/small_thin_button_03.sub"
+        },
+        "xlarge_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xlarge_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xlarge_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xlarge_button_03.sub"
+        },
+        "xlarge_thin_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xlarge_thin_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xlarge_thin_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xlarge_thin_button_03.sub"
+        },
+        "xsmall_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xsmall_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xsmall_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xsmall_button_03.sub"
+        }
+    }
 }
