@@ -38,7 +38,7 @@ class WindowIndexManager:
         return index
 
     def free_index(self, _type, index):
-        if self.used_index_list.get(_type, None) is not None:
+        if self.used_index_list.get(_type, None) is not None and index in self.used_index_list[_type]:
             self.used_index_list[_type].remove(index)
 
 class BaseWidget:

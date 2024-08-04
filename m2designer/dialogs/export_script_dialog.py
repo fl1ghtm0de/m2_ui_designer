@@ -75,8 +75,6 @@ class UiscriptExportDialog(ctk.CTkToplevel):
 
     def on_submit(self):
         self.destroy()
-
-
             # self.dropdown_popup[key] = tk.Menubutton(self, text="click to select", relief=ctk.RAISED, anchor='w')
             # self.dropdown_popup[key].place(
             #     x=x + self.attribute_table.winfo_rootx() - self.winfo_rootx(), # small offset to match placing

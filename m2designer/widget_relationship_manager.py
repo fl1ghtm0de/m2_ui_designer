@@ -119,7 +119,6 @@ class WidgetRelationshipManager(object):
         self.canvas.coords(handle_id, x, y, x2, y2)
 
     def apply_entry_input(self, attr, value):
-        print(attr, value)
         widget = self.curr_widget
         success = False
         if widget is not None:
@@ -378,7 +377,6 @@ class WidgetRelationshipManager(object):
             else:
                 self.add_child_widget(parent, wdg)
 
-            print(len(self.widgets.keys()))
             return wdg
         else:
             raise Exception("Canvas of wrm not set")
