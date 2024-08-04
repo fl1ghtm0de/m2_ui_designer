@@ -1,0 +1,64 @@
+{
+    "BUTTON_PATH": "images/button/",
+    "board_base" : "images/board/board_base.png",
+    "top" : "images/board_2/board_line_top.png",
+    "left" : "images/board_2/board_line_left.png",
+    "bottom" : "images/board_2/board_line_bottom.png",
+    "right" : "images/board_2/board_line_right.png",
+    "top_left_corner" : "images/board_2/board_corner_lefttop.png",
+    "bottom_left_corner" : "images/board_2/board_corner_leftbottom.png",
+    "bottom_right_corner" : "images/board_2/board_corner_rightbottom.png",
+    "top_right_corner" : "images/board_2/board_corner_righttop.png",
+    "close_button" : "images/button/close_button.png",
+    "minimize_button" : "images/button/minimize_button.png",
+    "thinboard" : "images/board/thinboard.png",
+    "slot" : "images/components/slot.png",
+    "titlebar_left" : "images/titlebar/titlebar_left.png",
+    "titlebar_center" : "images/titlebar/titlebar_center.png",
+    "titlebar_right" : "images/titlebar/titlebar_right.png",
+    "dropdown_attributes" : ["style"],
+    "style_options" : ["movable", "float", "attach"],
+    "uiscript_imports" : ["uiScriptLocale", "item", "app"],
+    "button_image_paths" : {
+        "big_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/big_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/big_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/big_button_03.sub"
+        },
+        "large_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/large_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/large_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/large_button_03.sub"
+        },
+        "middle_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/middle_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/middle_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/middle_button_03.sub"
+        },
+        "small_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/small_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/small_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/small_button_03.sub"
+        },
+        "small_thin_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/small_thin_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/small_thin_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/small_thin_button_03.sub"
+        },
+        "xlarge_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xlarge_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xlarge_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xlarge_button_03.sub"
+        },
+        "xlarge_thin_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xlarge_thin_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xlarge_thin_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xlarge_thin_button_03.sub"
+        },
+        "xsmall_button_dirs": {
+            "default_image": "d:/ymir work/ui/public/xsmall_button_01.sub",
+            "over_image": "d:/ymir work/ui/public/xsmall_button_02.sub",
+            "down_image": "d:/ymir work/ui/public/xsmall_button_03.sub"
+        }
+    }
+}

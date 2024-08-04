@@ -1,1 +1,1 @@
-nuitka --standalone --mingw64 --follow-imports --enable-plugin=tk-inter --windows-disable-console main.py
+nuitka --standalone --mingw64 --follow-imports --enable-plugin=tk-inter --windows-console-mode=disable main.py
